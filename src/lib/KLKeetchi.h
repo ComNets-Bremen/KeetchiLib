@@ -13,6 +13,7 @@
 
 #include <list>
 #include <string>
+#include <cstring>
 
 #include "KLTypes.h"
 #include "KLAction.h"

@@ -37,7 +37,7 @@
 //
 #define KLDATAMSG_MAX_DATA_PAYLOAD_SIZE				1024
 
-// used to indicate whether a message hast to be sent 
+// used to indicate whether a message has to be sent
 // to someone else or is being received
 #define KLDATAMSG_MSG_DIRECTION_NOT_SET				0
 #define KLDATAMSG_MSG_DIRECTION_IN					1

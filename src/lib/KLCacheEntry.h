@@ -11,6 +11,7 @@
 #define KLCacheEntry_H
 
 #include <string>
+#include <cstring>
 #include <cstdlib>
 
 #include "KLTypes.h"
