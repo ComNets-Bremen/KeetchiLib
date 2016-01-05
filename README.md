@@ -42,15 +42,15 @@ Prerequisites
 
 ### Debian based Linux:
 
-sudo apt-get install autoconf automake libtool
+`sudo apt-get install autoconf automake libtool`
 
 
 ### MacOS:
 
 (Using homebrew, brew.sh)
 
-- brew install automake
-- brew install libtool
+- `brew install automake`
+- `brew install libtool`
 
 Compilation
 -----------
@@ -61,15 +61,20 @@ or Linux host
 2. Checkout the KeetchiLib code from Github
 
 3. Perform the following commands:
-    - ./bootstrap
-    - ./configure
-    - make
+    - `./bootstrap`
+    - `./configure`
+    - `make`
 
+Create documentation
+--------------------
+
+A target for creating doxygen-based documentation is available. Just perform
+`make doxygen-doc`. The resulting documents will be located in doxygen-doc
 
 Using libkeetchi.la
 -------------------
 
-After executing "make", you will find libkeetchi.la in lib/libkeetchi.a
+After executing "`make`", you will find libkeetchi.la in lib/libkeetchi.a
 
 src/testapp contains a simple example app for testing basic functionality.
 
