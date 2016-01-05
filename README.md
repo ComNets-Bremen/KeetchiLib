@@ -36,6 +36,22 @@ The detailed description of the ODD model is presented in the paper
 “A Novel Data Dissemination Model for Organic Data Flows” published at the
 2015 MONAMI conference.
 
+
+Prerequisites
+-------------
+
+### Debian based Linux:
+
+sudo apt-get install autoconf automake libtool
+
+
+### MacOS:
+
+(Using homebrew, brew.sh)
+
+- brew install automake
+- brew install libtool
+
 Compilation
 -----------
 
