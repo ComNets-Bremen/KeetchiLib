@@ -2,9 +2,10 @@
 #include <string>
 #include <ctime>
 #include <KLKeetchi.h>
+#include <config.h>
 
 int main(){
-    std::cout << "Testme" << std::endl;
+    std::cout << "Testapp for \"" << PACKAGE_NAME << "\"" << std::endl;
 
     int cachePolicy;
     int cacheSize;
@@ -14,11 +15,8 @@ int main(){
     double time = static_cast<double>(std::time(NULL));
 
     KLKeetchi *keetchi = new KLKeetchi(cachePolicy, cacheSize, ownAddr);
-    ret = keetchi->registerApplication("MyApp", "dede", time);
+    ret = keetchi->registerApplication("MyApp", "myAddress", time);
     std::cout << "Return value: " << ret << std::endl;
-    ret = keetchi->registerApplication("MyApp", "dede", time);
+    ret = keetchi->registerApplication("MyApp", "myAddress", time);
     std::cout << "Return value: " << ret << std::endl;
-
-
-
 }
