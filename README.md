@@ -52,6 +52,10 @@ Prerequisites
 - `brew install automake`
 - `brew install libtool`
 
+(Using macports)
+
+- 'sudo port install automake libtool'
+
 Compilation
 -----------
 
@@ -74,7 +78,7 @@ A target for creating doxygen-based documentation is available. Just perform
 Using libkeetchi.la
 -------------------
 
-After executing "`make`", you will find libkeetchi.la in lib/libkeetchi.a
+After executing "`make`", you will find libkeetchi.la and libkeetchi.a in lib/.libs/
 
 src/testapp contains a simple example app for testing basic functionality.
 
@@ -101,5 +105,6 @@ perform the housekeeping activities in the ODD model.
 
 If you have any questions or comments, please write to,
 
-Asanga Udugama (adu@comnets.uni-bremen.de)
+Asanga Udugama (adu@comnets.uni-bremen.de) or
+Jens Dede (jd@comnets.uni-bremen.de)
 
