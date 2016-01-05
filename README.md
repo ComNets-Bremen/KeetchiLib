@@ -54,7 +54,7 @@ Prerequisites
 
 (Using macports)
 
-- 'sudo port install automake libtool'
+- `sudo port install automake libtool`
 
 Compilation
 -----------
