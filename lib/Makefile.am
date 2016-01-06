@@ -1,4 +1,10 @@
-noinst_LTLIBRARIES = libkeetchi.la
+# Use this line to create an library which is not copies to a system dir when
+# executing make install`:
+#noinst_LTLIBRARIES = libkeetchi.la
+
+# Install lib in corresponding directory when performing `make install`
+lib_LTLIBRARIES = libkeetchi.la
+
 # internal cpp and h files, no public interface
 libkeetchi_la_SOURCES = \
 						KLAction.cpp KLCommMgr.cpp KLFeedbackMsg.cpp\
