@@ -42,6 +42,9 @@ class KLCacheEntry
 		void setCreatedTime(double ct) {createdTime = ct; }
 		void setUpdatedTime(double ut) {updatedTime = ut; }
 		void setLastAccessedTime(double lat) {lastAccessedTime = lat; }
+		
+		// utility methods
+		KLCacheEntry *makeCopy(void);
 
 	private:
 		string dataName;

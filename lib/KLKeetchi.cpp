@@ -243,7 +243,7 @@ KLAction* KLKeetchi::processFeedbackMsg(int fromWhere, KLFeedbackMsg *feedbackMs
 	returnFeedbackMsg->setDataName(feedbackMsg->getDataName());
 	returnFeedbackMsg->setGoodnessValue(newGoodnessValue);
 		
-	returnAction->setActionType(KLACTION_ACTION_TYPE_DATAMSG);
+	returnAction->setActionType(KLACTION_ACTION_TYPE_FEEDBACKMSG);
 	returnAction->setFeedbackMsg(returnFeedbackMsg);
 	returnAction->setProcessingStatus(KLACTION_MSG_PROCESSING_SUCCESSFUL);
 		
@@ -260,6 +260,7 @@ list<KLAction*> KLKeetchi::processNewNeighbourList(list<KLNodeInfo*> nodeInfoLis
 	list<KLCacheEntry*> sendCacheEntryList;
 	
 	// determine significance of change
+	cout << "calling to determine significance of change \n";
 	changeSignificance = commMgr->determineChangeSignificance(nodeInfoList, currentTime);
 	
 	// determine communication limitations

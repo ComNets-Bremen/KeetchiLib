@@ -24,3 +24,16 @@ KLCacheEntry::~KLCacheEntry(void)
 {
 	free(dataPayload);
 }
+
+KLCacheEntry* KLCacheEntry::makeCopy(void)
+{
+	KLCacheEntry* copiedCacheEntry;
+	
+	copiedCacheEntry = new KLCacheEntry(dataName, dataPayload, dataPayloadSize, goodnessValue, createdTime);
+	copiedCacheEntry->setCreatedTime(createdTime);
+	copiedCacheEntry->setUpdatedTime(updatedTime);
+	copiedCacheEntry->setLastAccessedTime(lastAccessedTime);
+	
+	
+	return copiedCacheEntry;
+}

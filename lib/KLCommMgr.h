@@ -11,6 +11,7 @@
 
 #include <list>
 #include <string>
+#include <iostream>
 
 #include "KLTypes.h"
 #include "KLNodeInfo.h"
@@ -24,8 +25,8 @@ class KLCommMgr
 		~KLCommMgr(void);
 				
 		// operations
-		int determineChangeSignificance(const list<KLNodeInfo*>& newNeighbouNodeList, double cTime);
-		int updateNeighbours(const list<KLNodeInfo*>& newNeighbouNodeList, double cTime);
+		int determineChangeSignificance(list<KLNodeInfo*>& newNeighbouNodeList, double cTime);
+		int updateNeighbours(list<KLNodeInfo*>& newNeighbouNodeList, double cTime);
 
 	private:
 		list<KLNodeInfo*> neighbourNodeInfoList;

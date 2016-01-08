@@ -12,6 +12,8 @@ KLDataMgr::KLDataMgr(int cachePolicy, int cacheSize)
 	maxCacheSize = cacheSize;
 	currentCacheSize = 0;
 	
+	srand(128);
+	
 }
 
 KLDataMgr::~KLDataMgr(void)
@@ -87,8 +89,21 @@ int KLDataMgr::updateCacheEntry(string dName, char *dPayload, int dPayloadSize, 
 		delete foundCacheEntry;
 	}
 	
-	// add updated/created cache entry
-	cacheEntryList.push_front(updatedCacheEntry);
+	// search the cache to find where to insert the entry
+	// i.e., ordered by goodness value
+	KLCacheEntry *nextCacheEntry;
+	iteratorCacheEntry = cacheEntryList.begin();
+	while (iteratorCacheEntry != cacheEntryList.end()) {
+		nextCacheEntry = *iteratorCacheEntry;
+		if (updatedCacheEntry->getGoodnessValue() < nextCacheEntry->getGoodnessValue()) {
+			break;
+		}
+		iteratorCacheEntry++;
+
+	}
+
+	// position found, so insert the entry at the position before 
+	cacheEntryList.insert(iteratorCacheEntry, updatedCacheEntry);
 	
 	return 0;
 }
@@ -97,6 +112,7 @@ int KLDataMgr::recomputeGoodnessValue(int curValue, int rcvdValue, double cTime)
 {
 	int newValue;
 	
+	// get simple average
 	newValue = (curValue + rcvdValue) / 2;
 	
 	return newValue;
@@ -105,6 +121,59 @@ int KLDataMgr::recomputeGoodnessValue(int curValue, int rcvdValue, double cTime)
 list<KLCacheEntry*> KLDataMgr::getCacheEntriesToSend(int changeSignificance, int resourceLimit, double cTime)
 {
 	list<KLCacheEntry*> returnCacheEntryList;
+	int lowerHalfCount, upperHalfCount;
+	int cacheEntryIndex;
+	KLCacheEntry *selecedCacheEntry, *copiedCacheEntry;
+	
+	
+	// cache is empty
+	if (cacheEntryList.size() == 0) {
+		cout << "entries: " << returnCacheEntryList.size() << " \n";
+		return returnCacheEntryList;
+	} 
+	
+
+	// TODO: consider resource limitations also
+	
+	// Here's how the entries are found
+	// 1. cache is split into 2 halves in the middle
+	//    a. upper half with higher goodness values
+	//    b. lower half with lower goodness values
+	// 2. if significant change, then pick one from upper half
+	// 3. if non-significant change, then pick one from lower half 
+	
+	// split cache into 2
+	lowerHalfCount = cacheEntryList.size() / 2;
+	upperHalfCount = cacheEntryList.size() - lowerHalfCount;
+	
+	// select cache entries to send
+	if (changeSignificance == KLKEETCHI_SIGNIFICANT_CHANGE && upperHalfCount > 0) {
+		// select cached data entry randomly from upper half
+		// only one entry is selected
+		cacheEntryIndex = rand() % upperHalfCount;
+		list<KLCacheEntry*>::iterator iteratorCacheEntry = cacheEntryList.begin();
+		advance(iteratorCacheEntry, cacheEntryIndex);
+		selecedCacheEntry = *iteratorCacheEntry;
+		copiedCacheEntry = selecedCacheEntry->makeCopy();
+		returnCacheEntryList.push_back(copiedCacheEntry);
+		
+	} else if (changeSignificance == KLKEETCHI_NO_CHANGE && lowerHalfCount > 0) {
+		// select cached data entry randomly from lower half
+		// only one entry is selected
+		cacheEntryIndex = (rand() % lowerHalfCount) + upperHalfCount;
+		list<KLCacheEntry*>::iterator iteratorCacheEntry = cacheEntryList.begin();
+		advance(iteratorCacheEntry, cacheEntryIndex);
+		selecedCacheEntry = *iteratorCacheEntry;
+		copiedCacheEntry = selecedCacheEntry->makeCopy();
+		returnCacheEntryList.push_back(copiedCacheEntry);
+		
+	}
+	
+	cout << "-----" << "\n";
+	cout << "change: " << (changeSignificance == KLKEETCHI_NO_CHANGE ? "no change" : "sig change") << " \n";
+	cout << "send entries: " << returnCacheEntryList.size() << " \n";
+	cout << "cache entries: " << cacheEntryList.size() << " \n";
+	cout << "=====" << "\n";
 	
 	return returnCacheEntryList;
 }

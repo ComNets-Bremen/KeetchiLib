@@ -14,6 +14,7 @@
 #include <list>
 #include <string>
 #include <cstring>
+#include <iostream>
 
 #include "KLTypes.h"
 #include "KLAction.h"

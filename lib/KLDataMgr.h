@@ -12,6 +12,7 @@
 
 #include <string>
 #include <list>
+#include <iostream>
 
 #include "KLTypes.h"
 #include "KLCacheEntry.h"
