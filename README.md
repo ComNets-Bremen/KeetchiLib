@@ -1,4 +1,7 @@
 # KeetchiLib
+
+![Keetchi logo](https://raw.githubusercontent.com/ComNets-Bremen/KeetchiLib/master/img/keetchi_logo.png)
+
 A C++ implementation of the Organic Data Dissemination (ODD) model
 
 
