@@ -201,3 +201,31 @@ list<KLCacheEntry*> KLDataMgr::getCacheEntriesToSend(int changeSignificance, int
 	
 	return returnCacheEntryList;
 }
+
+int KLDataMgr::removeExpiredCacheEntries(double cTime)
+{
+	int expiredEntryFound = TRUE;
+	
+	while (expiredEntryFound) {
+		expiredEntryFound = FALSE;
+		
+		KLCacheEntry *nextCacheEntry;
+		list<KLCacheEntry*>::iterator iteratorCacheEntry = cacheEntryList.begin();
+		while (iteratorCacheEntry != cacheEntryList.end()) {
+			nextCacheEntry = *iteratorCacheEntry;
+			if (nextCacheEntry->getValidUntilTime() < cTime) {
+				expiredEntryFound = TRUE;
+				break;
+			}
+			iteratorCacheEntry++;
+
+		}
+		
+		if (expiredEntryFound) {
+			cacheEntryList.remove(nextCacheEntry);
+			delete nextCacheEntry;
+		}
+	}
+
+	return 0;
+}

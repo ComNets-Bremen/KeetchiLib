@@ -332,6 +332,7 @@ list<KLAction*> KLKeetchi::processNewNeighbourList(list<KLNodeInfo*> nodeInfoLis
 
 int KLKeetchi::ageData(double currentTime)
 {
+	dataMgr->removeExpiredCacheEntries(currentTime);
 	
 	return 0;
 }
