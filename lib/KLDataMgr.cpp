@@ -73,14 +73,16 @@ KLCacheEntry* KLDataMgr::getCacheEntry(string dName, double cTime)
 	if (found) {
 		copiedCacheEntry = new KLCacheEntry(foundCacheEntry->getDataName(), foundCacheEntry->getDataPayload(), 
 											foundCacheEntry->getDataPayloadSize(), 
-											foundCacheEntry->getGoodnessValue(), cTime);
+											foundCacheEntry->getGoodnessValue(), 
+											foundCacheEntry->getDataType(), foundCacheEntry->getValidUntilTime(), 
+											cTime);
 		foundCacheEntry->setLastAccessedTime(cTime);	
 	}
 	
 	return copiedCacheEntry;
 }
 
-int KLDataMgr::updateCacheEntry(string dName, char *dPayload, int dPayloadSize, int gValue, double cTime)
+int KLDataMgr::updateCacheEntry(string dName, char *dPayload, int dPayloadSize, int gValue, int dType, double vuTime, double cTime)
 {
 	KLCacheEntry *foundCacheEntry = NULL, *updatedCacheEntry = NULL;
 	
@@ -99,7 +101,8 @@ int KLDataMgr::updateCacheEntry(string dName, char *dPayload, int dPayloadSize, 
 	// create a cache entry with the new values
 	updatedCacheEntry = new KLCacheEntry(dName, dPayload, 
 										dPayloadSize, 
-										gValue, cTime);
+										gValue, dType, vuTime, 
+										cTime);
 	
 	// if the cache had a previous entry, remove the existing entry and set old time stamps
 	if (found) {
@@ -190,11 +193,11 @@ list<KLCacheEntry*> KLDataMgr::getCacheEntriesToSend(int changeSignificance, int
 		
 	}
 	
-	cout << "-----" << "\n";
-	cout << "change: " << (changeSignificance == KLKEETCHI_NO_CHANGE ? "no change" : "sig change") << " \n";
-	cout << "send entries: " << returnCacheEntryList.size() << " \n";
-	cout << "cache entries: " << cacheEntryList.size() << " \n";
-	cout << "=====" << "\n";
+	// cout << "-----" << "\n";
+	// cout << "change: " << (changeSignificance == KLKEETCHI_NO_CHANGE ? "no change" : "sig change") << " \n";
+	// cout << "send entries: " << returnCacheEntryList.size() << " \n";
+	// cout << "cache entries: " << cacheEntryList.size() << " \n";
+	// cout << "=====" << "\n";
 	
 	return returnCacheEntryList;
 }

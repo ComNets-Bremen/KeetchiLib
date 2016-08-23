@@ -54,6 +54,8 @@ class KLDataMsg
 		char *getDataPayload() {return dataPayload; }
 		int getDataPayloadSize() {return dataPayloadSize; }
 		int getGoodnessValue() {return goodnessValue; }
+		int getMsgType() {return msgType; }
+		int getValidUntilTime() {return validUntilTime; }
 	
 		// setters
 		void setMsgDirection(int md) {msgDirection = md; }
@@ -72,6 +74,9 @@ class KLDataMsg
 											  }
 											}
 		void setGoodnessValue(int gv) {goodnessValue = gv; }
+
+		void setMsgType(int mt) {msgType = mt; }
+		void setValidUntilTime(int vut) {validUntilTime = vut; }
 		
 		
 	private:
@@ -87,6 +92,9 @@ class KLDataMsg
 		int dataPayloadSize;
 		
 		int goodnessValue;
+		
+		int msgType;
+		double validUntilTime;
 
 };
 

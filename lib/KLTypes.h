@@ -79,6 +79,8 @@
 
 #define KLDATAMSG_ADDRESS_ALL						"all"
 
+#define KLDATAMSG_MSG_TYPE_NONE						0
+#define KLDATAMSG_MSG_TYPE_EMERGENCY				1
 
 //
 // KLFeedbackMsg class related types

@@ -27,13 +27,15 @@
 */
 #include "KLCacheEntry.h"
 
-KLCacheEntry::KLCacheEntry(string dName, char *dPayload, int dPayloadSize, int gValue, double cTime)
+KLCacheEntry::KLCacheEntry(string dName, char *dPayload, int dPayloadSize, int gValue, int dType, double vuTime, double cTime)
 {
 	dataName = dName;
 	dataPayload = (char *) malloc(dPayloadSize);
 	memcpy(dataPayload, dPayload, dPayloadSize);
 	dataPayloadSize = dPayloadSize;
 	goodnessValue = gValue;
+	dataType = dType;
+	validUntilTime = vuTime;
 	
 	createdTime = cTime;
 	updatedTime = cTime;
@@ -50,7 +52,7 @@ KLCacheEntry* KLCacheEntry::makeCopy(void)
 {
 	KLCacheEntry* copiedCacheEntry;
 	
-	copiedCacheEntry = new KLCacheEntry(dataName, dataPayload, dataPayloadSize, goodnessValue, createdTime);
+	copiedCacheEntry = new KLCacheEntry(dataName, dataPayload, dataPayloadSize, goodnessValue, dataType, validUntilTime, createdTime);
 	copiedCacheEntry->setCreatedTime(createdTime);
 	copiedCacheEntry->setUpdatedTime(updatedTime);
 	copiedCacheEntry->setLastAccessedTime(lastAccessedTime);

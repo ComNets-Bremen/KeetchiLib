@@ -51,7 +51,7 @@ class KLDataMgr
 		
 		// operations
 		KLCacheEntry* getCacheEntry(string dName, double cTime);
-		int updateCacheEntry(string dName, char *dPayload, int dPayloadSize, int gValue, double cTime);
+		int updateCacheEntry(string dName, char *dPayload, int dPayloadSize, int gValue, int dType, double vuTime, double cTime);
 		int recomputeGoodnessValue(int curValue, int rcvdValue, double cTime);
 		list<KLCacheEntry*> getCacheEntriesToSend(int changeSignificance, int resourceLimit, double cTime);
 

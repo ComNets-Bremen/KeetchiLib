@@ -42,7 +42,7 @@ using namespace std;
 class KLCacheEntry
 {
 	public:
-		KLCacheEntry(string dName, char *dPayload, int dPayloadSize, int gValue, double cTime);
+		KLCacheEntry(string dName, char *dPayload, int dPayloadSize, int gValue, int mType, double vuTime, double cTime);
 		~KLCacheEntry(void);
 	
 		// getters
@@ -50,9 +50,13 @@ class KLCacheEntry
 		char *getDataPayload() {return dataPayload; }
 		int getDataPayloadSize() {return dataPayloadSize; }
 		int getGoodnessValue() {return goodnessValue; }
+		int getDataType() {return dataType; }
+		int getValidUntilTime() {return validUntilTime; }
+		
 		double getCreatedTime() {return createdTime; }
 		double getUpdatedTime() {return updatedTime; }
 		double getLastAccessedTime() {return lastAccessedTime; }
+		
 	
 		// setters
 		void setDataName(string s) {dataName = s; }
@@ -60,6 +64,9 @@ class KLCacheEntry
 														memcpy(dataPayload, d, ds);
 														dataPayloadSize = ds; }
 		void setGoodnessValue(int gv) {goodnessValue = gv; }
+		void setDataType(int dt) {dataType = dt; }
+		void setValidUntilTime(int vut) {validUntilTime = vut; }
+		
 		void setCreatedTime(double ct) {createdTime = ct; }
 		void setUpdatedTime(double ut) {updatedTime = ut; }
 		void setLastAccessedTime(double lat) {lastAccessedTime = lat; }
@@ -72,7 +79,9 @@ class KLCacheEntry
 		char *dataPayload;
 		int dataPayloadSize;
 		int goodnessValue;
-		
+		int dataType;
+		double validUntilTime;
+
 		double createdTime;
 		double updatedTime;
 		double lastAccessedTime;

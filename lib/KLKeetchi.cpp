@@ -117,6 +117,7 @@ KLAction* KLKeetchi::processDataMsg(int fromWhere, KLDataMsg *dataMsg, double cu
 		// data seen for the first time
 		dataMgr->updateCacheEntry(dataMsg->getDataName(), dataMsg->getDataPayload(), 
 									dataMsg->getDataPayloadSize(), dataMsg->getGoodnessValue(), 
+									dataMsg->getMsgType(), dataMsg->getValidUntilTime(),
 									currentTime);
 									
 		// save goodness value for later use
@@ -127,7 +128,9 @@ KLAction* KLKeetchi::processDataMsg(int fromWhere, KLDataMsg *dataMsg, double cu
 		// data already available, so check if anything has changed
 		if (existingCacheEntry->getDataPayloadSize() == dataMsg->getDataPayloadSize()
 			&& memcmp(existingCacheEntry->getDataPayload(), dataMsg->getDataPayload(), dataMsg->getDataPayloadSize()) == 0
-			&& existingCacheEntry->getGoodnessValue() == dataMsg->getGoodnessValue()) {
+			&& existingCacheEntry->getGoodnessValue() == dataMsg->getGoodnessValue()
+		    && existingCacheEntry->getDataType() == dataMsg->getMsgType()
+		    && existingCacheEntry->getValidUntilTime() == dataMsg->getValidUntilTime()) {
 			
 			// nothing has changed
 			returnAction->setProcessingStatus(KLACTION_MSG_PROCESSING_SUCCESSFUL);
@@ -144,6 +147,7 @@ KLAction* KLKeetchi::processDataMsg(int fromWhere, KLDataMsg *dataMsg, double cu
 
 			dataMgr->updateCacheEntry(dataMsg->getDataName(), dataMsg->getDataPayload(), 
 										dataMsg->getDataPayloadSize(), newGoodnessValue, 
+										dataMsg->getMsgType(), dataMsg->getValidUntilTime(),
 										currentTime);
 		}
 	}
@@ -191,6 +195,8 @@ KLAction* KLKeetchi::processDataMsg(int fromWhere, KLDataMsg *dataMsg, double cu
 		returnDataMsg->setDataName(dataMsg->getDataName());
 		returnDataMsg->setDataPayload(dataMsg->getDataPayload(), dataMsg->getDataPayloadSize());
 		returnDataMsg->setGoodnessValue(newGoodnessValue);
+		returnDataMsg->setMsgType(dataMsg->getMsgType());
+		returnDataMsg->setValidUntilTime(dataMsg->getValidUntilTime());
 			
 		returnAction->setActionType(KLACTION_ACTION_TYPE_DATAMSG);
 		returnAction->setDataMsg(returnDataMsg);
@@ -237,6 +243,7 @@ KLAction* KLKeetchi::processFeedbackMsg(int fromWhere, KLFeedbackMsg *feedbackMs
 
 	dataMgr->updateCacheEntry(feedbackMsg->getDataName(), existingCacheEntry->getDataPayload(), 
 								existingCacheEntry->getDataPayloadSize(), newGoodnessValue, 
+								existingCacheEntry->getDataType(), existingCacheEntry->getValidUntilTime(),
 								currentTime);
 		
 		
