@@ -288,7 +288,7 @@ list<KLAction*> KLKeetchi::processNewNeighbourList(list<KLNodeInfo*> nodeInfoLis
 	list<KLCacheEntry*> sendCacheEntryList;
 	
 	// determine significance of change
-	cout << "calling to determine significance of change \n";
+	// cout << "calling to determine significance of change \n";
 	changeSignificance = commMgr->determineChangeSignificance(nodeInfoList, currentTime);
 	
 	// determine communication limitations
