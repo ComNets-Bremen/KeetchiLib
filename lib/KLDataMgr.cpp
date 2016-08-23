@@ -152,7 +152,7 @@ list<KLCacheEntry*> KLDataMgr::getCacheEntriesToSend(int changeSignificance, int
 	
 	// cache is empty
 	if (cacheEntryList.size() == 0) {
-		cout << "entries: " << returnCacheEntryList.size() << " \n";
+		// cout << "entries: " << returnCacheEntryList.size() << " \n";
 		return returnCacheEntryList;
 	} 
 	
