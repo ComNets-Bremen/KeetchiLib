@@ -312,6 +312,8 @@ list<KLAction*> KLKeetchi::processNewNeighbourList(list<KLNodeInfo*> nodeInfoLis
 		dataMsg->setDataName(cacheEntry->getDataName());
 		dataMsg->setDataPayload(cacheEntry->getDataPayload(), cacheEntry->getDataPayloadSize());
 		dataMsg->setGoodnessValue(cacheEntry->getGoodnessValue());
+		dataMsg->setMsgType(cacheEntry->getDataType());
+		dataMsg->setValidUntilTime(cacheEntry->getValidUntilTime());
 		
 		// create the action to return with the data msg
 		KLAction *action = new KLAction();
