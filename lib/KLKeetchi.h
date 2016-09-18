@@ -62,6 +62,7 @@ class KLKeetchi
 		KLAction* processDataMsg(int fromWhere, KLDataMsg *dataMsg, double currentTime);
 		list<KLAction*> processNewNeighbourList(list<KLNodeInfo*> nodeInfoList, double currentTime);
 		int ageData(double currentTime);
+		int getStatus(int statusType, void *inputInfo, void *outputInfo);
 		
 	private:
 		int maxCacheSize;
@@ -74,5 +75,7 @@ class KLKeetchi
 		list<KLAppInfo*> registeredAppInfoList;
 
 };
+
+
 
 #endif

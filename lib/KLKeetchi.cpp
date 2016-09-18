@@ -334,9 +334,22 @@ list<KLAction*> KLKeetchi::processNewNeighbourList(list<KLNodeInfo*> nodeInfoLis
 
 int KLKeetchi::ageData(double currentTime)
 {
-	dataMgr->removeExpiredCacheEntries(currentTime);
+	dataMgr->ageCacheEntries(currentTime);
 	
 	return 0;
 }
 
+// storage for inputInfo and outputInfo must be allocated by the caller
+int KLKeetchi::getStatus(int statusType, void *inputInfo, void *outputInfo)
+{
+	if (statusType == KLKEETCHI_DATA_ITEM_PRESENCE) {
+		string dName = *((string *) inputInfo);
+		int rtn = dataMgr->checkCacheEntryPresence(dName);
+		*((int *) outputInfo) = rtn;
+		
+		return 1;
+	}
+	
+	return 0;
+}
 

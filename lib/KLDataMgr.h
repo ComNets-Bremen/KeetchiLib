@@ -54,7 +54,9 @@ class KLDataMgr
 		int updateCacheEntry(string dName, char *dPayload, int dPayloadSize, int gValue, int dType, double vuTime, double cTime);
 		int recomputeGoodnessValue(int curValue, int rcvdValue, double cTime);
 		list<KLCacheEntry*> getCacheEntriesToSend(int changeSignificance, int resourceLimit, double cTime);
-		int removeExpiredCacheEntries(double cTime);
+		// int removeExpiredCacheEntries(double cTime);
+		int ageCacheEntries(double cTime);
+		int checkCacheEntryPresence(string dName);
 
 	private:
 		list<KLCacheEntry*> cacheEntryList;

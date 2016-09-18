@@ -58,6 +58,9 @@
 #define KLKEETCHI_RESOURCE_CAPACITY_LEVEL_01		1
 #define KLKEETCHI_RESOURCE_CAPACITY_LEVEL_99		99
 
+// Status types 
+#define KLKEETCHI_DATA_ITEM_PRESENCE				1	// input: data name as a string
+														// output: int 1 = yes, 0 = no
 
 //
 // KLDataMsg class related types

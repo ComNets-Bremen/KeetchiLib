@@ -202,30 +202,57 @@ list<KLCacheEntry*> KLDataMgr::getCacheEntriesToSend(int changeSignificance, int
 	return returnCacheEntryList;
 }
 
-int KLDataMgr::removeExpiredCacheEntries(double cTime)
+// int KLDataMgr::removeExpiredCacheEntries(double cTime)
+// {
+// 	int expiredEntryFound = TRUE;
+//
+// 	while (expiredEntryFound) {
+// 		expiredEntryFound = FALSE;
+//
+// 		KLCacheEntry *nextCacheEntry;
+// 		list<KLCacheEntry*>::iterator iteratorCacheEntry = cacheEntryList.begin();
+// 		while (iteratorCacheEntry != cacheEntryList.end()) {
+// 			nextCacheEntry = *iteratorCacheEntry;
+// 			if (nextCacheEntry->getValidUntilTime() < cTime) {
+// 				expiredEntryFound = TRUE;
+// 				break;
+// 			}
+// 			iteratorCacheEntry++;
+//
+// 		}
+//
+// 		if (expiredEntryFound) {
+// 			cacheEntryList.remove(nextCacheEntry);
+// 			delete nextCacheEntry;
+// 		}
+// 	}
+//
+// 	return 0;
+// }
+
+int KLDataMgr::ageCacheEntries(double cTime)
 {
-	int expiredEntryFound = TRUE;
-	
-	while (expiredEntryFound) {
-		expiredEntryFound = FALSE;
-		
-		KLCacheEntry *nextCacheEntry;
-		list<KLCacheEntry*>::iterator iteratorCacheEntry = cacheEntryList.begin();
-		while (iteratorCacheEntry != cacheEntryList.end()) {
-			nextCacheEntry = *iteratorCacheEntry;
-			if (nextCacheEntry->getValidUntilTime() < cTime) {
-				expiredEntryFound = TRUE;
-				break;
-			}
-			iteratorCacheEntry++;
-
+	list<KLCacheEntry*>::iterator iteratorCacheEntry = cacheEntryList.begin();
+	while (iteratorCacheEntry != cacheEntryList.end()) {
+		int goodnessValue = (*iteratorCacheEntry)->getGoodnessValue();
+		if (goodnessValue > 0) {
+			goodnessValue -= 1;
+			(*iteratorCacheEntry)->setGoodnessValue(goodnessValue);
 		}
-		
-		if (expiredEntryFound) {
-			cacheEntryList.remove(nextCacheEntry);
-			delete nextCacheEntry;
-		}
+		iteratorCacheEntry++;
 	}
-
 	return 0;
+}
+
+int KLDataMgr::checkCacheEntryPresence(string dName) 
+{
+	int found = FALSE;
+	list<KLCacheEntry*>::iterator iteratorCacheEntry = cacheEntryList.begin();
+	while (iteratorCacheEntry != cacheEntryList.end()) {
+		if ((*iteratorCacheEntry)->getDataName() == dName) {
+			return 1;
+		}
+		iteratorCacheEntry++;
+	}
+	return 0;	
 }
