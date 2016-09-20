@@ -212,7 +212,7 @@ list<KLCacheEntry*> KLDataMgr::getCacheEntriesToSend(int changeSignificance, int
 	int i;
 	list<double>::iterator iteratorDouble;
 	
-	cout << "========================================\n";
+	// cout << "========================================\n";
 	
 	// cache is empty
 	if (cacheEntryList.size() == 0) {
@@ -231,8 +231,8 @@ list<KLCacheEntry*> KLDataMgr::getCacheEntriesToSend(int changeSignificance, int
 		
 		lastFocusIndex = -1;
 
-		cout << "only one item, so index 0 selected\n";
-		cout << "========================================\n\n\n";
+		// cout << "only one item, so index 0 selected\n";
+		// cout << "========================================\n\n\n";
 		
 		return returnCacheEntryList;
 	}
@@ -299,41 +299,18 @@ list<KLCacheEntry*> KLDataMgr::getCacheEntriesToSend(int changeSignificance, int
 		rightIndex--;
 	}
 
-	cout << "weights for focussed item=" << lastFocusIndex << "\n  ";
+	// cout << "weights for focussed item=" << lastFocusIndex << "\n  ";
 	iteratorDouble = weightList.begin();
 	i = 0;
 	while (iteratorDouble != weightList.end()) {
 		
-		cout << "i=" << i << ", " << *iteratorDouble << " ";
+		// cout << "i=" << i << ", " << *iteratorDouble << " ";
 		
 		i++;
 		iteratorDouble++;
 	}
 
-
-	// // create weight unit -> always 1 more than the cache size
-	// // as we want to assign 2 weight units for the index of focus
-	// weightUnit = (double) 1.0 / (double) (cacheEntryList.size() + 1);
-	//
-	// cout << "weights for focussed item=" << lastFocusIndex << "\n  ";
-	// // assign weight units to each index
-	// for (int i = 0; i < cacheEntryList.size(); i++) {
-	// 	double assignedWeight;
-	//
-	// 	// assign weight units to each index, giving 2 weight
-	// 	// units for the index of focus
-	// 	if (i == lastFocusIndex) {
-	// 		assignedWeight = weightUnit * 2.0;
-	// 	} else {
-	// 		assignedWeight = weightUnit;
-	// 	}
-	//
-	// 	weightList.push_back(assignedWeight);
-	// 	cout << "i=" << i << ", " << assignedWeight << " ";
-	// }
-
-	cout << "\n";
-
+	// cout << "\n";
 	
 	// retrieve an item by creating a CDF of the weights
 	double randomDouble = ((double) rand() / (double) RAND_MAX);
@@ -341,7 +318,7 @@ list<KLCacheEntry*> KLDataMgr::getCacheEntriesToSend(int changeSignificance, int
 	int found = FALSE;
 	i = -1;
 
-	cout << "random val=" << randomDouble << "\n";
+	// cout << "random val=" << randomDouble << "\n";
 	
 	iteratorDouble = weightList.begin();
 	while (iteratorDouble != weightList.end()) {
@@ -363,14 +340,14 @@ list<KLCacheEntry*> KLDataMgr::getCacheEntriesToSend(int changeSignificance, int
 		copiedCacheEntry = selecedCacheEntry->makeCopy();
 		returnCacheEntryList.push_back(copiedCacheEntry);
 		
-		cout << "selected=" << i << "\n";
+		// cout << "selected=" << i << "\n";
 		
 	} else {
-		cout << "selected=none\n";
+		// cout << "selected=none\n";
 		
 	}
 	
-	cout << "========================================\n\n\n";
+	// cout << "========================================\n\n\n";
 
 	return returnCacheEntryList;	
 }
