@@ -296,7 +296,7 @@ list<KLCacheEntry*> KLDataMgr::getCacheEntriesToSend(int changeSignificance, int
 		
 		*iteratorRightDouble = *iteratorRightDouble / 2.0;
 
-		rightIndex++;
+		rightIndex--;
 	}
 
 	cout << "weights for focussed item=" << lastFocusIndex << "\n  ";
