@@ -32,6 +32,7 @@ KLDataMgr::KLDataMgr(int cachePolicy, int cacheSize)
 	cacheReplacementPolicy = cachePolicy;
 	maxCacheSize = cacheSize;
 	currentCacheSize = 0;
+	lastFocusIndex = -1;
 	
 	srand(128);
 	
@@ -142,93 +143,184 @@ int KLDataMgr::recomputeGoodnessValue(int curValue, int rcvdValue, double cTime)
 	return newValue;
 }
 
+// list<KLCacheEntry*> KLDataMgr::getCacheEntriesToSend(int changeSignificance, int resourceLimit, double cTime)
+// {
+// 	list<KLCacheEntry*> returnCacheEntryList;
+// 	int lowerHalfCount, upperHalfCount;
+// 	int cacheEntryIndex;
+// 	KLCacheEntry *selecedCacheEntry, *copiedCacheEntry;
+//
+//
+// 	// cache is empty
+// 	if (cacheEntryList.size() == 0) {
+// 		// cout << "entries: " << returnCacheEntryList.size() << " \n";
+// 		return returnCacheEntryList;
+// 	}
+//
+//
+// 	// TODO: consider resource limitations also
+//
+// 	// Here's how the entries are found
+// 	// 1. cache is split into 2 halves in the middle
+// 	//    a. upper half with higher goodness values
+// 	//    b. lower half with lower goodness values
+// 	// 2. if significant change, then pick one from upper half
+// 	// 3. if non-significant change, then pick one from lower half
+//
+// 	// split cache into 2
+// 	lowerHalfCount = cacheEntryList.size() / 2;
+// 	upperHalfCount = cacheEntryList.size() - lowerHalfCount;
+//
+// 	// select cache entries to send
+// 	if (changeSignificance == KLKEETCHI_SIGNIFICANT_CHANGE && upperHalfCount > 0) {
+// 		// select cached data entry randomly from upper half
+// 		// only one entry is selected
+// 		cacheEntryIndex = rand() % upperHalfCount;
+// 		list<KLCacheEntry*>::iterator iteratorCacheEntry = cacheEntryList.begin();
+// 		advance(iteratorCacheEntry, cacheEntryIndex);
+// 		selecedCacheEntry = *iteratorCacheEntry;
+// 		copiedCacheEntry = selecedCacheEntry->makeCopy();
+// 		returnCacheEntryList.push_back(copiedCacheEntry);
+//
+// 	} else if (changeSignificance == KLKEETCHI_NO_CHANGE && lowerHalfCount > 0) {
+// 		// select cached data entry randomly from lower half
+// 		// only one entry is selected
+// 		cacheEntryIndex = (rand() % lowerHalfCount) + upperHalfCount;
+// 		list<KLCacheEntry*>::iterator iteratorCacheEntry = cacheEntryList.begin();
+// 		advance(iteratorCacheEntry, cacheEntryIndex);
+// 		selecedCacheEntry = *iteratorCacheEntry;
+// 		copiedCacheEntry = selecedCacheEntry->makeCopy();
+// 		returnCacheEntryList.push_back(copiedCacheEntry);
+//
+// 	}
+//
+// 	// cout << "-----" << "\n";
+// 	// cout << "change: " << (changeSignificance == KLKEETCHI_NO_CHANGE ? "no change" : "sig change") << " \n";
+// 	// cout << "send entries: " << returnCacheEntryList.size() << " \n";
+// 	// cout << "cache entries: " << cacheEntryList.size() << " \n";
+// 	// cout << "=====" << "\n";
+//
+// 	return returnCacheEntryList;
+// }
+
+
 list<KLCacheEntry*> KLDataMgr::getCacheEntriesToSend(int changeSignificance, int resourceLimit, double cTime)
 {
 	list<KLCacheEntry*> returnCacheEntryList;
-	int lowerHalfCount, upperHalfCount;
-	int cacheEntryIndex;
 	KLCacheEntry *selecedCacheEntry, *copiedCacheEntry;
+	list<double> weightList;
+	double weightUnit;
 	
+	
+	cout << "========================================\n";
 	
 	// cache is empty
 	if (cacheEntryList.size() == 0) {
 		// cout << "entries: " << returnCacheEntryList.size() << " \n";
+		lastFocusIndex = -1;
 		return returnCacheEntryList;
-	} 
+	}
 	
-
-	// TODO: consider resource limitations also
-	
-	// Here's how the entries are found
-	// 1. cache is split into 2 halves in the middle
-	//    a. upper half with higher goodness values
-	//    b. lower half with lower goodness values
-	// 2. if significant change, then pick one from upper half
-	// 3. if non-significant change, then pick one from lower half 
-	
-	// split cache into 2
-	lowerHalfCount = cacheEntryList.size() / 2;
-	upperHalfCount = cacheEntryList.size() - lowerHalfCount;
-	
-	// select cache entries to send
-	if (changeSignificance == KLKEETCHI_SIGNIFICANT_CHANGE && upperHalfCount > 0) {
-		// select cached data entry randomly from upper half
-		// only one entry is selected
-		cacheEntryIndex = rand() % upperHalfCount;
+	// if there is only one entry, then send that out if there is a significant change
+	if (changeSignificance == KLKEETCHI_SIGNIFICANT_CHANGE && cacheEntryList.size() == 1) {
 		list<KLCacheEntry*>::iterator iteratorCacheEntry = cacheEntryList.begin();
-		advance(iteratorCacheEntry, cacheEntryIndex);
+		advance(iteratorCacheEntry, 0);
 		selecedCacheEntry = *iteratorCacheEntry;
 		copiedCacheEntry = selecedCacheEntry->makeCopy();
 		returnCacheEntryList.push_back(copiedCacheEntry);
 		
-	} else if (changeSignificance == KLKEETCHI_NO_CHANGE && lowerHalfCount > 0) {
-		// select cached data entry randomly from lower half
-		// only one entry is selected
-		cacheEntryIndex = (rand() % lowerHalfCount) + upperHalfCount;
+		lastFocusIndex = -1;
+
+		cout << "only one item, so index 0 selected\n";
+		cout << "========================================\n\n\n";
+		
+		return returnCacheEntryList;
+	}
+	
+	// if significant change in neighbourhood
+	if (changeSignificance == KLKEETCHI_SIGNIFICANT_CHANGE) {
+
+		// move the focus to the most popular entry
+		lastFocusIndex = 0;
+
+	} else {
+		// non-significant change
+		
+		// move the focus to the next popular entry
+		lastFocusIndex += 1;
+		if (lastFocusIndex > (cacheEntryList.size() - 1)) {
+			
+			// if the focus index reached beyond cache size,
+			// rollover to the begining
+			lastFocusIndex = 0;
+		}
+		
+	}
+
+	// create weight unit -> always 1 more than the cache size
+	// as we want to assign 2 weight units for the index of focus
+	weightUnit = 1 / (cacheEntryList.size() + 1);
+
+	cout << "weights for focussed item=" << lastFocusIndex << "\n  ";
+	// assign weight units to each index
+	for (int i = 0; i < cacheEntryList.size(); i++) {
+		double assignedWeight;
+
+		// assign weight units to each index, giving 2 weight
+		// units for the index of focus
+		if (i == lastFocusIndex) {
+			assignedWeight = weightUnit * 2;
+		} else {
+			assignedWeight = weightUnit;
+		}
+		
+		weightList.push_back(assignedWeight);
+		cout << "i=" << i << ", " << assignedWeight << " ";
+	}
+
+	cout << "\n";
+
+	
+	// retrieve an item by creating a CDF of the weights
+	double randomDouble = ((double) rand() / (double) RAND_MAX);
+	double weightAdd = 0.0;
+	int found = FALSE;
+	int i = -1;
+
+	cout << "random val=" << randomDouble << "\n";
+	
+	list<double>::iterator iteratorDouble = weightList.begin();
+	while (iteratorDouble != weightList.end()) {
+		weightAdd += *iteratorDouble;
+		i++;
+		
+		if (randomDouble <= weightAdd) {
+			found = TRUE;
+			break;
+		}
+		
+		iteratorDouble++;
+	}
+
+	if (found) {
 		list<KLCacheEntry*>::iterator iteratorCacheEntry = cacheEntryList.begin();
-		advance(iteratorCacheEntry, cacheEntryIndex);
+		advance(iteratorCacheEntry, i);
 		selecedCacheEntry = *iteratorCacheEntry;
 		copiedCacheEntry = selecedCacheEntry->makeCopy();
 		returnCacheEntryList.push_back(copiedCacheEntry);
+		
+		cout << "selected=" << i << "\n";
+		
+	} else {
+		cout << "selected=none\n";
 		
 	}
 	
-	// cout << "-----" << "\n";
-	// cout << "change: " << (changeSignificance == KLKEETCHI_NO_CHANGE ? "no change" : "sig change") << " \n";
-	// cout << "send entries: " << returnCacheEntryList.size() << " \n";
-	// cout << "cache entries: " << cacheEntryList.size() << " \n";
-	// cout << "=====" << "\n";
-	
-	return returnCacheEntryList;
+	cout << "========================================\n\n\n";
+
+	return returnCacheEntryList;	
 }
 
-// int KLDataMgr::removeExpiredCacheEntries(double cTime)
-// {
-// 	int expiredEntryFound = TRUE;
-//
-// 	while (expiredEntryFound) {
-// 		expiredEntryFound = FALSE;
-//
-// 		KLCacheEntry *nextCacheEntry;
-// 		list<KLCacheEntry*>::iterator iteratorCacheEntry = cacheEntryList.begin();
-// 		while (iteratorCacheEntry != cacheEntryList.end()) {
-// 			nextCacheEntry = *iteratorCacheEntry;
-// 			if (nextCacheEntry->getValidUntilTime() < cTime) {
-// 				expiredEntryFound = TRUE;
-// 				break;
-// 			}
-// 			iteratorCacheEntry++;
-//
-// 		}
-//
-// 		if (expiredEntryFound) {
-// 			cacheEntryList.remove(nextCacheEntry);
-// 			delete nextCacheEntry;
-// 		}
-// 	}
-//
-// 	return 0;
-// }
 
 int KLDataMgr::ageCacheEntries(double cTime)
 {
