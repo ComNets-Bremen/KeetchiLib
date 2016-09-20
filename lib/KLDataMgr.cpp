@@ -209,8 +209,8 @@ list<KLCacheEntry*> KLDataMgr::getCacheEntriesToSend(int changeSignificance, int
 	list<KLCacheEntry*> returnCacheEntryList;
 	KLCacheEntry *selecedCacheEntry, *copiedCacheEntry;
 	list<double> weightList;
-	double weightUnit;
-	
+	int i;
+	list<double>::iterator iteratorDouble;
 	
 	cout << "========================================\n";
 	
@@ -257,26 +257,80 @@ list<KLCacheEntry*> KLDataMgr::getCacheEntriesToSend(int changeSignificance, int
 		
 	}
 
-	// create weight unit -> always 1 more than the cache size
-	// as we want to assign 2 weight units for the index of focus
-	weightUnit = (double) 1.0 / (double) (cacheEntryList.size() + 1);
+	double initialWeightUnit = (double) 1.0 / (double) cacheEntryList.size();
+	for (i = 0; i < cacheEntryList.size(); i++) {
+		weightList.push_back(initialWeightUnit);
+	}
+	
+	// adjust the weights of the half before the focus index
+	int leftIndex = 0;
+	
+	while (leftIndex < lastFocusIndex) {
+
+		list<double>::iterator iteratorLeftDouble = weightList.begin();
+		advance(iteratorLeftDouble, leftIndex);
+
+		list<double>::iterator iteratorRightDouble = weightList.begin();
+		advance(iteratorRightDouble, (leftIndex + 1));
+
+		*iteratorRightDouble += (*iteratorLeftDouble / 2.0);
+
+		*iteratorLeftDouble = *iteratorLeftDouble / 2.0;
+	
+		leftIndex++;
+	}
+	
+
+	// adjust the weights of the half after the focus index
+	int rightIndex = cacheEntryList.size() - 1;
+	
+	while (lastFocusIndex < rightIndex) {
+	
+		list<double>::iterator iteratorRightDouble = weightList.begin();
+		advance(iteratorRightDouble, rightIndex);
+
+		list<double>::iterator iteratorLeftDouble = weightList.begin();
+		advance(iteratorLeftDouble, (rightIndex - 1));
+
+		*iteratorLeftDouble += (*iteratorRightDouble / 2.0);
+		
+		*iteratorRightDouble = *iteratorRightDouble / 2.0;
+
+		rightIndex++;
+	}
 
 	cout << "weights for focussed item=" << lastFocusIndex << "\n  ";
-	// assign weight units to each index
-	for (int i = 0; i < cacheEntryList.size(); i++) {
-		double assignedWeight;
-
-		// assign weight units to each index, giving 2 weight
-		// units for the index of focus
-		if (i == lastFocusIndex) {
-			assignedWeight = weightUnit * 2.0;
-		} else {
-			assignedWeight = weightUnit;
-		}
+	iteratorDouble = weightList.begin();
+	i = 0;
+	while (iteratorDouble != weightList.end()) {
 		
-		weightList.push_back(assignedWeight);
-		cout << "i=" << i << ", " << assignedWeight << " ";
+		cout << "i=" << i << ", " << *iteratorDouble << " ";
+		
+		i++;
+		iteratorDouble++;
 	}
+
+
+	// // create weight unit -> always 1 more than the cache size
+	// // as we want to assign 2 weight units for the index of focus
+	// weightUnit = (double) 1.0 / (double) (cacheEntryList.size() + 1);
+	//
+	// cout << "weights for focussed item=" << lastFocusIndex << "\n  ";
+	// // assign weight units to each index
+	// for (int i = 0; i < cacheEntryList.size(); i++) {
+	// 	double assignedWeight;
+	//
+	// 	// assign weight units to each index, giving 2 weight
+	// 	// units for the index of focus
+	// 	if (i == lastFocusIndex) {
+	// 		assignedWeight = weightUnit * 2.0;
+	// 	} else {
+	// 		assignedWeight = weightUnit;
+	// 	}
+	//
+	// 	weightList.push_back(assignedWeight);
+	// 	cout << "i=" << i << ", " << assignedWeight << " ";
+	// }
 
 	cout << "\n";
 
@@ -285,11 +339,11 @@ list<KLCacheEntry*> KLDataMgr::getCacheEntriesToSend(int changeSignificance, int
 	double randomDouble = ((double) rand() / (double) RAND_MAX);
 	double weightAdd = 0.0;
 	int found = FALSE;
-	int i = -1;
+	i = -1;
 
 	cout << "random val=" << randomDouble << "\n";
 	
-	list<double>::iterator iteratorDouble = weightList.begin();
+	iteratorDouble = weightList.begin();
 	while (iteratorDouble != weightList.end()) {
 		weightAdd += *iteratorDouble;
 		i++;
