@@ -259,7 +259,7 @@ list<KLCacheEntry*> KLDataMgr::getCacheEntriesToSend(int changeSignificance, int
 
 	// create weight unit -> always 1 more than the cache size
 	// as we want to assign 2 weight units for the index of focus
-	weightUnit = 1 / (cacheEntryList.size() + 1);
+	weightUnit = (double) 1.0 / (double) (cacheEntryList.size() + 1);
 
 	cout << "weights for focussed item=" << lastFocusIndex << "\n  ";
 	// assign weight units to each index
@@ -269,7 +269,7 @@ list<KLCacheEntry*> KLDataMgr::getCacheEntriesToSend(int changeSignificance, int
 		// assign weight units to each index, giving 2 weight
 		// units for the index of focus
 		if (i == lastFocusIndex) {
-			assignedWeight = weightUnit * 2;
+			assignedWeight = weightUnit * 2.0;
 		} else {
 			assignedWeight = weightUnit;
 		}
