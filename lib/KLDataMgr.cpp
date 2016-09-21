@@ -248,11 +248,15 @@ list<KLCacheEntry*> KLDataMgr::getCacheEntriesToSend(int changeSignificance, int
 		
 		// move the focus to the next popular entry
 		lastFocusIndex += 1;
+		
 		if (lastFocusIndex > (cacheEntryList.size() - 1)) {
 			
 			// if the focus index reached beyond cache size,
-			// rollover to the begining
-			lastFocusIndex = 0;
+			// stop sending any more data until a significant
+			// change occurs
+			lastFocusIndex = cacheEntryList.size() - 1;
+			
+			return returnCacheEntryList;
 		}
 		
 	}
