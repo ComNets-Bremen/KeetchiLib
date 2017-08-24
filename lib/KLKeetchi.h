@@ -21,7 +21,7 @@
 
 /**
 * Main class that is instantiated by the Keetchi layer of every node to perform
-* all Keetchi related activities. There should only be one instance of these 
+* all Keetchi related activities. There should only be one instance of these
 * objects per node.
 *
 * @author : Asanga Udugama (adu@comnets.uni-bremen.de)
@@ -52,27 +52,36 @@ using namespace std;
 
 class KLKeetchi
 {
-	public:
-		KLKeetchi(int cachePolicy, int cacheSize, string ownAddr);
-		~KLKeetchi(void);
-		
-		int registerApplication(string appName, string prefixName, double currentTime);
-		int deregisterApplication(string appName, double currentTime);
-		KLAction* processFeedbackMsg(int fromWhere, KLFeedbackMsg *feedbackMsg, double currentTime);
-		KLAction* processDataMsg(int fromWhere, KLDataMsg *dataMsg, double currentTime);
-		list<KLAction*> processNewNeighbourList(list<KLNodeInfo*> nodeInfoList, double currentTime);
-		int ageData(double currentTime);
-		int getStatus(int statusType, void *inputInfo, void *outputInfo);
-		
-	private:
-		int maxCacheSize;
-		int cacheReplacementPolicy;
-		string ownAddress;
-		
-		KLDataMgr *dataMgr;
-		KLCommMgr *commMgr;
-		KLResourceMgr *resourceMgr;
-		list<KLAppInfo*> registeredAppInfoList;
+    public:
+        KLKeetchi(int cachePolicy, int cacheSize, string ownAddr, double changeSigThreshold, double coolOffDur, double learningConst);
+        ~KLKeetchi(void);
+
+        int registerApplication(string appName, string prefixName, double currentTime);
+        int deregisterApplication(string appName, double currentTime);
+        KLAction* processFeedbackMsg(int fromWhere, KLFeedbackMsg *feedbackMsg, double currentTime);
+        KLAction* processDataMsg(int fromWhere, KLDataMsg *dataMsg, double currentTime);
+        list<KLAction*> processNewNeighbourList(list<KLNodeInfo*> nodeInfoList, double currentTime);
+        int ageData(double currentTime);
+        int getStatus(int statusType, void *inputInfo, void *outputInfo);
+
+    private:
+        int maxCacheSize; // maximum size in bytes
+        int cacheReplacementPolicy; // policy -> LRU, etc
+        string ownAddress; // node's own MAC address
+        double neighbourhoodChangeSignificanceThreshold; // 0.0 to 1.0 value indicating change significance
+                                                         // e.g., 0.25 means a 25% change is sufficient to consider
+                                                         // as a significant change in neighbourhood
+        double coolOffDuration; // duration (in sec) the node stays silent without sending data out
+                                // after repeated insiginificant changes
+        double learningConstant; // the constant that gives the weight assigned to the current
+                                 // goodness value in cache when computing the new value
+                                 // together with the recently arrived goodness value (in
+                                 // a data or feedback) - a value between 0.0 - 1.0
+
+        KLDataMgr *dataMgr;
+        KLCommMgr *commMgr;
+        KLResourceMgr *resourceMgr;
+        list<KLAppInfo*> registeredAppInfoList;
 
 };
 

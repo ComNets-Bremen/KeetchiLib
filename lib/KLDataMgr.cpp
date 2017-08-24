@@ -27,359 +27,369 @@
 */
 #include "KLDataMgr.h"
 
-KLDataMgr::KLDataMgr(int cachePolicy, int cacheSize)
+KLDataMgr::KLDataMgr(int cachePolicy, int cacheSize, double coolOffDur, double learningConst)
 {
-	cacheReplacementPolicy = cachePolicy;
-	maxCacheSize = cacheSize;
-	currentCacheSize = 0;
-	lastFocusIndex = -1;
-	
-	srand(128);
-	
+    cacheReplacementPolicy = cachePolicy;
+    maxCacheSize = cacheSize;
+    coolOffDuration = coolOffDur;
+    learningConstant = learningConst;
+    currentCacheSize = 0;
+    lastFocusIndex = -1;
+    coolOffEndTime = 0.0;
+
+    srand(128);
+
 }
 
 KLDataMgr::~KLDataMgr(void)
 {
-	KLCacheEntry *foundCacheEntry;
+    KLCacheEntry *foundCacheEntry;
 
-	// remove all cache entries
-	list<KLCacheEntry*>::iterator iteratorCacheEntry = cacheEntryList.begin();
-	while (iteratorCacheEntry != cacheEntryList.end()) {
-		foundCacheEntry = *iteratorCacheEntry;
-		delete foundCacheEntry;
-		iteratorCacheEntry++;
-	}
-	
-	cacheEntryList.clear();
-	
+    // remove all cache entries
+    list<KLCacheEntry*>::iterator iteratorCacheEntry = cacheEntryList.begin();
+    while (iteratorCacheEntry != cacheEntryList.end()) {
+        foundCacheEntry = *iteratorCacheEntry;
+        delete foundCacheEntry;
+        iteratorCacheEntry++;
+    }
+
+    cacheEntryList.clear();
+
 }
 
 KLCacheEntry* KLDataMgr::getCacheEntry(string dName, double cTime)
 {
-	KLCacheEntry *foundCacheEntry = NULL, *copiedCacheEntry = NULL;
-	
-	// look for entry
-	int found = FALSE;
-	list<KLCacheEntry*>::iterator iteratorCacheEntry = cacheEntryList.begin();
-	while (iteratorCacheEntry != cacheEntryList.end()) {
-		if ((*iteratorCacheEntry)->getDataName() == dName) {
-			foundCacheEntry = *iteratorCacheEntry;
-			found = TRUE;
-			break;
-		}
-		iteratorCacheEntry++;
-	}
-	
-	// make a copy, if found, to return and update access time
-	if (found) {
-		copiedCacheEntry = new KLCacheEntry(foundCacheEntry->getDataName(), foundCacheEntry->getDataPayload(), 
-											foundCacheEntry->getDataPayloadSize(), 
-											foundCacheEntry->getGoodnessValue(), 
-											foundCacheEntry->getDataType(), foundCacheEntry->getValidUntilTime(), 
-											cTime);
-		foundCacheEntry->setLastAccessedTime(cTime);	
-	}
-	
-	return copiedCacheEntry;
+    KLCacheEntry *foundCacheEntry = NULL, *copiedCacheEntry = NULL;
+
+    // look for entry
+    int found = FALSE;
+    list<KLCacheEntry*>::iterator iteratorCacheEntry = cacheEntryList.begin();
+    while (iteratorCacheEntry != cacheEntryList.end()) {
+        if ((*iteratorCacheEntry)->getDataName() == dName) {
+            foundCacheEntry = *iteratorCacheEntry;
+            found = TRUE;
+            break;
+        }
+        iteratorCacheEntry++;
+    }
+
+    // make a copy, if found, to return and update access time
+    if (found) {
+        copiedCacheEntry = new KLCacheEntry(foundCacheEntry->getDataName(), foundCacheEntry->getDataPayload(),
+                                            foundCacheEntry->getDataPayloadSize(),
+                                            foundCacheEntry->getGoodnessValue(),
+                                            foundCacheEntry->getDataType(), foundCacheEntry->getValidUntilTime(),
+                                            cTime);
+        foundCacheEntry->setLastAccessedTime(cTime);
+    }
+
+    return copiedCacheEntry;
 }
 
 int KLDataMgr::updateCacheEntry(string dName, char *dPayload, int dPayloadSize, int gValue, int dType, double vuTime, double cTime)
 {
-	KLCacheEntry *foundCacheEntry = NULL, *updatedCacheEntry = NULL;
-	
-	// look for entry
-	int found = FALSE;
-	list<KLCacheEntry*>::iterator iteratorCacheEntry = cacheEntryList.begin();
-	while (iteratorCacheEntry != cacheEntryList.end()) {
-		if ((*iteratorCacheEntry)->getDataName() == dName) {
-			foundCacheEntry = *iteratorCacheEntry;
-			found = TRUE;
-			break;
-		}
-		iteratorCacheEntry++;
-	}
-	
-	// create a cache entry with the new values
-	updatedCacheEntry = new KLCacheEntry(dName, dPayload, 
-										dPayloadSize, 
-										gValue, dType, vuTime, 
-										cTime);
-	
-	// if the cache had a previous entry, remove the existing entry and set old time stamps
-	if (found) {
-		cacheEntryList.remove(foundCacheEntry);
-		updatedCacheEntry->setCreatedTime(foundCacheEntry->getCreatedTime());
-		updatedCacheEntry->setLastAccessedTime(foundCacheEntry->getLastAccessedTime());
-		
-		delete foundCacheEntry;
-	}
-	
-	// search the cache to find where to insert the entry
-	// i.e., ordered by goodness value
-	KLCacheEntry *nextCacheEntry;
-	iteratorCacheEntry = cacheEntryList.begin();
-	while (iteratorCacheEntry != cacheEntryList.end()) {
-		nextCacheEntry = *iteratorCacheEntry;
-		if (updatedCacheEntry->getGoodnessValue() < nextCacheEntry->getGoodnessValue()) {
-			break;
-		}
-		iteratorCacheEntry++;
+    KLCacheEntry *foundCacheEntry = NULL, *updatedCacheEntry = NULL;
 
-	}
+    // look for entry
+    int found = FALSE;
+    list<KLCacheEntry*>::iterator iteratorCacheEntry = cacheEntryList.begin();
+    while (iteratorCacheEntry != cacheEntryList.end()) {
+        if ((*iteratorCacheEntry)->getDataName() == dName) {
+            foundCacheEntry = *iteratorCacheEntry;
+            found = TRUE;
+            break;
+        }
+        iteratorCacheEntry++;
+    }
 
-	// position found, so insert the entry at the position before 
-	cacheEntryList.insert(iteratorCacheEntry, updatedCacheEntry);
-	
-	return 0;
+    // create a cache entry with the new values
+    updatedCacheEntry = new KLCacheEntry(dName, dPayload,
+                                        dPayloadSize,
+                                        gValue, dType, vuTime,
+                                        cTime);
+
+    // if the cache had a previous entry, remove the existing entry and set old time stamps
+    if (found) {
+        currentCacheSize -= foundCacheEntry->getDataPayloadSize();
+        cacheEntryList.remove(foundCacheEntry);
+        updatedCacheEntry->setCreatedTime(foundCacheEntry->getCreatedTime());
+        updatedCacheEntry->setLastAccessedTime(foundCacheEntry->getLastAccessedTime());
+
+        delete foundCacheEntry;
+    }
+
+    // search the cache to find where to insert the entry
+    // i.e., ordered by goodness value
+    KLCacheEntry *nextCacheEntry;
+    iteratorCacheEntry = cacheEntryList.begin();
+    while (iteratorCacheEntry != cacheEntryList.end()) {
+        nextCacheEntry = *iteratorCacheEntry;
+        if (updatedCacheEntry->getGoodnessValue() > nextCacheEntry->getGoodnessValue()) {
+            break;
+        }
+        iteratorCacheEntry++;
+
+    }
+
+    // position found, so insert the entry at the position before
+    cacheEntryList.insert(iteratorCacheEntry, updatedCacheEntry);
+
+    // increment cache size
+    currentCacheSize += dPayloadSize;
+
+    // remove entries if cache exceeded limit (maxCacheSize == 0 means unlimited cache)
+    if (maxCacheSize != 0 && currentCacheSize > maxCacheSize) {
+        while (currentCacheSize > maxCacheSize) {
+            iteratorCacheEntry = cacheEntryList.end();
+            iteratorCacheEntry--;
+            KLCacheEntry *removalCacheEntry = *iteratorCacheEntry;
+            cacheEntryList.remove(removalCacheEntry);
+            currentCacheSize -= removalCacheEntry->getDataPayloadSize();
+            delete removalCacheEntry;
+        }
+
+    }
+
+    // // print cache -> temp code
+    // if (cacheEntryList.size() == 10) {
+    //     cout << "---- begin ------\n";
+    //     iteratorCacheEntry = cacheEntryList.begin();
+    //     while (iteratorCacheEntry != cacheEntryList.end()) {
+    //         nextCacheEntry = *iteratorCacheEntry;
+    //         cout << "data: " << nextCacheEntry->getDataName() << ", gval:" << nextCacheEntry->getGoodnessValue() << "\n";
+    //         iteratorCacheEntry++;
+    //     }
+    //     cout << "---- end ------\n";
+    // }
+
+    return 0;
 }
 
 int KLDataMgr::recomputeGoodnessValue(int curValue, int rcvdValue, double cTime)
 {
-	int newValue;
-	
-	// get simple average
-	newValue = (curValue + rcvdValue) / 2;
-	
-	return newValue;
+    double newValue;
+    int retValue;
+
+    // // get simple average
+    // newValue = (curValue + rcvdValue) / 2;
+
+    // compute new goodness value using learning constant (gamma)
+    newValue = (curValue * learningConstant) + (rcvdValue * (1.0 - learningConstant));
+    newValue += 0.5;
+    retValue = floor(newValue);
+
+    // cout << "curValue - " << curValue << ", rcvdValue - " << rcvdValue << ", newValue - " << newValue
+    //     <<  ", retValue - " << retValue << "\n";
+
+    return retValue;
 }
-
-// list<KLCacheEntry*> KLDataMgr::getCacheEntriesToSend(int changeSignificance, int resourceLimit, double cTime)
-// {
-// 	list<KLCacheEntry*> returnCacheEntryList;
-// 	int lowerHalfCount, upperHalfCount;
-// 	int cacheEntryIndex;
-// 	KLCacheEntry *selecedCacheEntry, *copiedCacheEntry;
-//
-//
-// 	// cache is empty
-// 	if (cacheEntryList.size() == 0) {
-// 		// cout << "entries: " << returnCacheEntryList.size() << " \n";
-// 		return returnCacheEntryList;
-// 	}
-//
-//
-// 	// TODO: consider resource limitations also
-//
-// 	// Here's how the entries are found
-// 	// 1. cache is split into 2 halves in the middle
-// 	//    a. upper half with higher goodness values
-// 	//    b. lower half with lower goodness values
-// 	// 2. if significant change, then pick one from upper half
-// 	// 3. if non-significant change, then pick one from lower half
-//
-// 	// split cache into 2
-// 	lowerHalfCount = cacheEntryList.size() / 2;
-// 	upperHalfCount = cacheEntryList.size() - lowerHalfCount;
-//
-// 	// select cache entries to send
-// 	if (changeSignificance == KLKEETCHI_SIGNIFICANT_CHANGE && upperHalfCount > 0) {
-// 		// select cached data entry randomly from upper half
-// 		// only one entry is selected
-// 		cacheEntryIndex = rand() % upperHalfCount;
-// 		list<KLCacheEntry*>::iterator iteratorCacheEntry = cacheEntryList.begin();
-// 		advance(iteratorCacheEntry, cacheEntryIndex);
-// 		selecedCacheEntry = *iteratorCacheEntry;
-// 		copiedCacheEntry = selecedCacheEntry->makeCopy();
-// 		returnCacheEntryList.push_back(copiedCacheEntry);
-//
-// 	} else if (changeSignificance == KLKEETCHI_NO_CHANGE && lowerHalfCount > 0) {
-// 		// select cached data entry randomly from lower half
-// 		// only one entry is selected
-// 		cacheEntryIndex = (rand() % lowerHalfCount) + upperHalfCount;
-// 		list<KLCacheEntry*>::iterator iteratorCacheEntry = cacheEntryList.begin();
-// 		advance(iteratorCacheEntry, cacheEntryIndex);
-// 		selecedCacheEntry = *iteratorCacheEntry;
-// 		copiedCacheEntry = selecedCacheEntry->makeCopy();
-// 		returnCacheEntryList.push_back(copiedCacheEntry);
-//
-// 	}
-//
-// 	// cout << "-----" << "\n";
-// 	// cout << "change: " << (changeSignificance == KLKEETCHI_NO_CHANGE ? "no change" : "sig change") << " \n";
-// 	// cout << "send entries: " << returnCacheEntryList.size() << " \n";
-// 	// cout << "cache entries: " << cacheEntryList.size() << " \n";
-// 	// cout << "=====" << "\n";
-//
-// 	return returnCacheEntryList;
-// }
-
 
 list<KLCacheEntry*> KLDataMgr::getCacheEntriesToSend(int changeSignificance, int resourceLimit, double cTime)
 {
-	list<KLCacheEntry*> returnCacheEntryList;
-	KLCacheEntry *selecedCacheEntry, *copiedCacheEntry;
-	list<double> weightList;
-	int i;
-	list<double>::iterator iteratorDouble;
-	
-	// cout << "========================================\n";
-	
-	// cache is empty
-	if (cacheEntryList.size() == 0) {
-		// cout << "entries: " << returnCacheEntryList.size() << " \n";
-		lastFocusIndex = -1;
-		return returnCacheEntryList;
-	}
-	
-	// if there is only one entry, then send that out if there is a significant change
-	if (changeSignificance == KLKEETCHI_SIGNIFICANT_CHANGE && cacheEntryList.size() == 1) {
-		list<KLCacheEntry*>::iterator iteratorCacheEntry = cacheEntryList.begin();
-		advance(iteratorCacheEntry, 0);
-		selecedCacheEntry = *iteratorCacheEntry;
-		copiedCacheEntry = selecedCacheEntry->makeCopy();
-		returnCacheEntryList.push_back(copiedCacheEntry);
-		
-		lastFocusIndex = -1;
+    list<KLCacheEntry*> returnCacheEntryList;
+    KLCacheEntry *selecedCacheEntry, *copiedCacheEntry;
+    list<double> weightList;
+    int i;
+    list<double>::iterator iteratorDouble;
 
-		// cout << "only one item, so index 0 selected\n";
-		// cout << "========================================\n\n\n";
-		
-		return returnCacheEntryList;
-	}
-	
-	// if significant change in neighbourhood
-	if (changeSignificance == KLKEETCHI_SIGNIFICANT_CHANGE) {
+    // cout << "========================================\n";
 
-		// move the focus to the most popular entry
-		lastFocusIndex = 0;
 
-	} else {
-		// non-significant change
-		
-		// move the focus to the next popular entry
-		lastFocusIndex += 1;
-		
-		if (lastFocusIndex > (cacheEntryList.size() - 1)) {
-			
-			// if the focus index reached beyond cache size,
-			// stop sending any more data until a significant
-			// change occurs
-			lastFocusIndex = cacheEntryList.size() - 1;
-			
-			return returnCacheEntryList;
-		}
-		
-	}
+    // cache is empty
+    if (cacheEntryList.size() == 0) {
+        // cout << "entries: " << returnCacheEntryList.size() << " \n";
+        lastFocusIndex = -1;
+        return returnCacheEntryList;
+    }
 
-	double initialWeightUnit = (double) 1.0 / (double) cacheEntryList.size();
-	for (i = 0; i < cacheEntryList.size(); i++) {
-		weightList.push_back(initialWeightUnit);
-	}
-	
-	// adjust the weights of the half before the focus index
-	int leftIndex = 0;
-	
-	while (leftIndex < lastFocusIndex) {
+    if (changeSignificance == KLKEETCHI_SIGNIFICANT_CHANGE) {
 
-		list<double>::iterator iteratorLeftDouble = weightList.begin();
-		advance(iteratorLeftDouble, leftIndex);
+        // is cool off period active?
+        if (cTime < coolOffEndTime) {
 
-		list<double>::iterator iteratorRightDouble = weightList.begin();
-		advance(iteratorRightDouble, (leftIndex + 1));
+            // terminate the cool off period
+            coolOffEndTime = cTime;
+        }
 
-		*iteratorRightDouble += (*iteratorLeftDouble / 2.0);
+        // set focus index to the begining of cache
+        lastFocusIndex = 0;
 
-		*iteratorLeftDouble = *iteratorLeftDouble / 2.0;
-	
-		leftIndex++;
-	}
-	
+        // build distribution around the focus index and get a random index
+        int sendDataIndex = buildDistributionAndReturnRandomIndex(cacheEntryList.size(), lastFocusIndex);
 
-	// adjust the weights of the half after the focus index
-	int rightIndex = cacheEntryList.size() - 1;
-	
-	while (lastFocusIndex < rightIndex) {
-	
-		list<double>::iterator iteratorRightDouble = weightList.begin();
-		advance(iteratorRightDouble, rightIndex);
+        // retrieve cache entry
+        list<KLCacheEntry*>::iterator iteratorCacheEntry = cacheEntryList.begin();
+        advance(iteratorCacheEntry, i);
+        selecedCacheEntry = *iteratorCacheEntry;
 
-		list<double>::iterator iteratorLeftDouble = weightList.begin();
-		advance(iteratorLeftDouble, (rightIndex - 1));
+        // make a copy and set return variable
+        copiedCacheEntry = selecedCacheEntry->makeCopy();
+        returnCacheEntryList.push_back(copiedCacheEntry);
 
-		*iteratorLeftDouble += (*iteratorRightDouble / 2.0);
-		
-		*iteratorRightDouble = *iteratorRightDouble / 2.0;
 
-		rightIndex--;
-	}
 
-	// cout << "weights for focussed item=" << lastFocusIndex << "\n  ";
-	iteratorDouble = weightList.begin();
-	i = 0;
-	while (iteratorDouble != weightList.end()) {
-		
-		// cout << "i=" << i << ", " << *iteratorDouble << " ";
-		
-		i++;
-		iteratorDouble++;
-	}
+    } else {
 
-	// cout << "\n";
-	
-	// retrieve an item by creating a CDF of the weights
-	double randomDouble = ((double) rand() / (double) RAND_MAX);
-	double weightAdd = 0.0;
-	int found = FALSE;
-	i = -1;
+        // KLKEETCHI_INSIGNIFICANT_CHANGE
 
-	// cout << "random val=" << randomDouble << "\n";
-	
-	iteratorDouble = weightList.begin();
-	while (iteratorDouble != weightList.end()) {
-		weightAdd += *iteratorDouble;
-		i++;
-		
-		if (randomDouble <= weightAdd) {
-			found = TRUE;
-			break;
-		}
-		
-		iteratorDouble++;
-	}
 
-	if (found) {
-		list<KLCacheEntry*>::iterator iteratorCacheEntry = cacheEntryList.begin();
-		advance(iteratorCacheEntry, i);
-		selecedCacheEntry = *iteratorCacheEntry;
-		copiedCacheEntry = selecedCacheEntry->makeCopy();
-		returnCacheEntryList.push_back(copiedCacheEntry);
-		
-		// cout << "selected=" << i << "\n";
-		
-	} else {
-		// cout << "selected=none\n";
-		
-	}
-	
-	// cout << "========================================\n\n\n";
+        // is cool off period active?
+        if (cTime < coolOffEndTime) {
 
-	return returnCacheEntryList;	
+            // if so, dont send any data
+            return returnCacheEntryList;
+        }
+
+        // move the focus index to the next entry
+        lastFocusIndex += 1;
+
+        // is valid focus index
+        if (lastFocusIndex <= cacheEntryList.size()) {
+
+            // yes, it is a valid focus index
+
+            // build distribution around the focus index and get a random index
+            int sendDataIndex = buildDistributionAndReturnRandomIndex(cacheEntryList.size(), lastFocusIndex);
+
+            // retrieve cache entry
+            list<KLCacheEntry*>::iterator iteratorCacheEntry = cacheEntryList.begin();
+            advance(iteratorCacheEntry, i);
+            selecedCacheEntry = *iteratorCacheEntry;
+
+            // make a copy and set return variable
+            copiedCacheEntry = selecedCacheEntry->makeCopy();
+            returnCacheEntryList.push_back(copiedCacheEntry);
+
+
+        } else {
+            // no, it is an invalid focus index
+
+            // if the focus index reached beyond cache size,
+            // stop sending any more data until a significant
+            // change occurs or the cool off period is reached
+            lastFocusIndex = -1;
+            coolOffEndTime = cTime + coolOffDuration;
+
+        }
+    }
+
+    return returnCacheEntryList;
 }
-
 
 int KLDataMgr::ageCacheEntries(double cTime)
 {
-	list<KLCacheEntry*>::iterator iteratorCacheEntry = cacheEntryList.begin();
-	while (iteratorCacheEntry != cacheEntryList.end()) {
-		int goodnessValue = (*iteratorCacheEntry)->getGoodnessValue();
-		if (goodnessValue > 0) {
-			goodnessValue -= 1;
-			(*iteratorCacheEntry)->setGoodnessValue(goodnessValue);
-		}
-		iteratorCacheEntry++;
-	}
-	return 0;
+    list<KLCacheEntry*>::iterator iteratorCacheEntry = cacheEntryList.begin();
+    while (iteratorCacheEntry != cacheEntryList.end()) {
+        int goodnessValue = (*iteratorCacheEntry)->getGoodnessValue();
+        if (goodnessValue > 0) {
+            goodnessValue -= 1;
+            (*iteratorCacheEntry)->setGoodnessValue(goodnessValue);
+        }
+        iteratorCacheEntry++;
+    }
+    return 0;
 }
 
-int KLDataMgr::checkCacheEntryPresence(string dName) 
+int KLDataMgr::checkCacheEntryPresence(string dName)
 {
-	int found = FALSE;
-	list<KLCacheEntry*>::iterator iteratorCacheEntry = cacheEntryList.begin();
-	while (iteratorCacheEntry != cacheEntryList.end()) {
-		if ((*iteratorCacheEntry)->getDataName() == dName) {
-			return 1;
-		}
-		iteratorCacheEntry++;
-	}
-	return 0;	
+    int found = FALSE;
+    list<KLCacheEntry*>::iterator iteratorCacheEntry = cacheEntryList.begin();
+    while (iteratorCacheEntry != cacheEntryList.end()) {
+        if ((*iteratorCacheEntry)->getDataName() == dName) {
+            return 1;
+        }
+        iteratorCacheEntry++;
+    }
+    return 0;
 }
+
+int KLDataMgr::buildDistributionAndReturnRandomIndex(int cacheEntryCount, int currentFocusIndex)
+{
+    list<double> weightList;
+    int i;
+    double totalWeights;
+    double cdfAccumulator;
+    int returnIndex;
+
+    // initialize arrays
+    for (i = 0; i < cacheEntryCount; i++) {
+        weightList.push_back(0.0);
+    }
+
+    // set value of focus index (i.e., peak of distribution)
+    list<double>::iterator iteratorFocusIndex = weightList.begin();
+    advance(iteratorFocusIndex, currentFocusIndex);
+    *iteratorFocusIndex = 1000.0;
+    totalWeights = 1000.0;
+
+    // fill left half
+    i = currentFocusIndex - 1;
+    while (i >= 0) {
+
+        // get previous weight
+        list<double>::iterator iteratorPreviousIndex = weightList.begin();
+        advance(iteratorPreviousIndex, (i + 1));
+
+        // get current weight (which is 0)
+        list<double>::iterator iteratorCurrentIndex = weightList.begin();
+        advance(iteratorCurrentIndex, i);
+
+        // compute current weight
+        *iteratorCurrentIndex = *iteratorPreviousIndex / 2.0;
+
+        // accumulate sum
+        totalWeights += *iteratorCurrentIndex;
+
+        i--;
+    }
+
+    // fill right half
+    i = currentFocusIndex + 1;
+    while (i < cacheEntryCount) {
+
+        // get previous weight
+        list<double>::iterator iteratorPreviousIndex = weightList.begin();
+        advance(iteratorPreviousIndex, (i - 1));
+
+        // get current weight (which is 0)
+        list<double>::iterator iteratorCurrentIndex = weightList.begin();
+        advance(iteratorCurrentIndex, i);
+
+        // compute current weight
+        *iteratorCurrentIndex = *iteratorPreviousIndex / 2.0;
+
+        // accumulate sum
+        totalWeights += *iteratorCurrentIndex;
+
+        i++;
+    }
+
+    // get random number between 0.0 and 1.0
+    double randomDouble = ((double) rand() / (double) (RAND_MAX));
+
+    // select the index relevant for the random number using the
+    // CDF of the weights
+    i = 0;
+    cdfAccumulator = 0.0;
+    returnIndex = -1;
+    while (i < cacheEntryCount) {
+
+        // get weight
+        list<double>::iterator iteratorWeightIndex = weightList.begin();
+        advance(iteratorWeightIndex, i);
+
+        double probablityForIndex = *iteratorWeightIndex / totalWeights;
+
+        cdfAccumulator += probablityForIndex;
+
+        if (randomDouble <= cdfAccumulator) {
+            returnIndex = i;
+            break;
+        }
+
+        i++;
+    }
+
+    return returnIndex;
+}
+

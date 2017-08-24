@@ -41,16 +41,17 @@ using namespace std;
 
 class KLCommMgr
 {
-	public:
-		KLCommMgr(void);
-		~KLCommMgr(void);
-				
-		// operations
-		int determineChangeSignificance(list<KLNodeInfo*>& newNeighbouNodeList, double cTime);
-		int updateNeighbours(list<KLNodeInfo*>& newNeighbouNodeList, double cTime);
+    public:
+        KLCommMgr(double changeSigThreshold);
+        ~KLCommMgr(void);
 
-	private:
-		list<KLNodeInfo*> neighbourNodeInfoList;
+        // operations
+        int determineChangeSignificance(list<KLNodeInfo*>& newNeighbouNodeList, double cTime);
+        int updateNeighbours(list<KLNodeInfo*>& newNeighbouNodeList, double cTime);
+
+    private:
+        double neighbourhoodChangeSignificanceThreshold;
+        list<KLNodeInfo*> neighbourNodeInfoList;
 
 };
 

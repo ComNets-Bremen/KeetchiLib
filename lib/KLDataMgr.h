@@ -20,7 +20,7 @@
  ******************************************************************************/
 
 /**
-* Manages the operations related to managing data including 
+* Manages the operations related to managing data including
 * the cache.
 *
 * @author : Asanga Udugama (adu@comnets.uni-bremen.de)
@@ -34,6 +34,7 @@
 #include <string>
 #include <list>
 #include <iostream>
+#include <math.h>
 
 #include "KLTypes.h"
 #include "KLCacheEntry.h"
@@ -42,30 +43,34 @@ using namespace std;
 
 class KLDataMgr
 {
-	public:
-		KLDataMgr(int cachePolicy, int cacheSize);
-		~KLDataMgr(void);
-		
-		// getters
-		int getCurrentCacheSize() {return currentCacheSize; }
-		
-		// operations
-		KLCacheEntry* getCacheEntry(string dName, double cTime);
-		int updateCacheEntry(string dName, char *dPayload, int dPayloadSize, int gValue, int dType, double vuTime, double cTime);
-		int recomputeGoodnessValue(int curValue, int rcvdValue, double cTime);
-		list<KLCacheEntry*> getCacheEntriesToSend(int changeSignificance, int resourceLimit, double cTime);
-		int ageCacheEntries(double cTime);
-		int checkCacheEntryPresence(string dName);
+    public:
+        KLDataMgr(int cachePolicy, int cacheSize, double coolOffDur, double learningConst);
+        ~KLDataMgr(void);
 
-	private:
-		list<KLCacheEntry*> cacheEntryList;
-		int cacheReplacementPolicy;
-		int maxCacheSize;
-		
-		int currentCacheSize;
-		
-		int lastFocusIndex;
-		
-	};
+        // getters
+        int getCurrentCacheSize() {return currentCacheSize; }
+
+        // operations
+        KLCacheEntry* getCacheEntry(string dName, double cTime);
+        int updateCacheEntry(string dName, char *dPayload, int dPayloadSize, int gValue, int dType, double vuTime, double cTime);
+        int recomputeGoodnessValue(int curValue, int rcvdValue, double cTime);
+        list<KLCacheEntry*> getCacheEntriesToSend(int changeSignificance, int resourceLimit, double cTime);
+        int ageCacheEntries(double cTime);
+        int checkCacheEntryPresence(string dName);
+
+    private:
+        list<KLCacheEntry*> cacheEntryList;
+        int cacheReplacementPolicy; // policy -> LRU, etc
+        int maxCacheSize;  // size in bytes
+        double coolOffDuration;
+        double learningConstant;
+
+        int currentCacheSize;
+        int lastFocusIndex;
+        double coolOffEndTime;
+
+        int buildDistributionAndReturnRandomIndex(int cacheEntryCount, int currentFocusIndex);
+
+    };
 
 #endif
