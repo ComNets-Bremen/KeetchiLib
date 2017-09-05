@@ -139,6 +139,7 @@ KLAction* KLKeetchi::processDataMsg(int fromWhere, KLDataMsg *dataMsg, double cu
             returnAction->setProcessingStatus(KLACTION_MSG_PROCESSING_SUCCESSFUL);
             returnAction->setActionType(KLACTION_ACTION_TYPE_EMPTY);
 
+            delete existingCacheEntry;
             delete dataMsg;
             return returnAction;
 
@@ -152,6 +153,7 @@ KLAction* KLKeetchi::processDataMsg(int fromWhere, KLDataMsg *dataMsg, double cu
                                         dataMsg->getDataPayloadSize(), newGoodnessValue,
                                         dataMsg->getMsgType(), dataMsg->getValidUntilTime(),
                                         currentTime);
+            delete existingCacheEntry;
         }
     }
 
@@ -256,6 +258,7 @@ KLAction* KLKeetchi::processFeedbackMsg(int fromWhere, KLFeedbackMsg *feedbackMs
         returnAction->setProcessingStatus(KLACTION_MSG_PROCESSING_SUCCESSFUL);
         returnAction->setActionType(KLACTION_ACTION_TYPE_EMPTY);
 
+        delete existingCacheEntry;
         delete feedbackMsg;
         return returnAction;
 
@@ -281,6 +284,7 @@ KLAction* KLKeetchi::processFeedbackMsg(int fromWhere, KLFeedbackMsg *feedbackMs
         returnAction->setProcessingStatus(KLACTION_MSG_PROCESSING_SUCCESSFUL);
         returnAction->setActionType(KLACTION_ACTION_TYPE_EMPTY);
 
+        delete existingCacheEntry;
         delete feedbackMsg;
         return returnAction;
     }
@@ -306,12 +310,15 @@ KLAction* KLKeetchi::processFeedbackMsg(int fromWhere, KLFeedbackMsg *feedbackMs
         returnAction->setFeedbackMsg(returnFeedbackMsg);
         returnAction->setProcessingStatus(KLACTION_MSG_PROCESSING_SUCCESSFUL);
 
+        delete existingCacheEntry;
         delete feedbackMsg;
         return returnAction;
     }
 
     returnAction->setProcessingStatus(KLACTION_MSG_PROCESSING_SUCCESSFUL);
     returnAction->setActionType(KLACTION_ACTION_TYPE_EMPTY);
+
+    delete existingCacheEntry;
     delete feedbackMsg;
     return returnAction;
 }
@@ -365,6 +372,14 @@ list<KLAction*> KLKeetchi::processNewNeighbourList(list<KLNodeInfo*> nodeInfoLis
 
     // update new neighbour list
     commMgr->updateNeighbours(nodeInfoList, currentTime);
+    
+    // remove temporary cache enntries in sendCacheEntryList
+    while (sendCacheEntryList.size() > 0) {
+        list<KLCacheEntry*>::iterator iteratorCacheEntry = sendCacheEntryList.begin();
+        KLCacheEntry *cacheEntry = *iteratorCacheEntry;
+        sendCacheEntryList.remove(cacheEntry);
+        delete cacheEntry;
+    }
 
     return returnActionList;
 }

@@ -178,9 +178,6 @@ int KLDataMgr::recomputeGoodnessValue(int curValue, int rcvdValue, double cTime)
     newValue += 0.5;
     retValue = floor(newValue);
 
-    // cout << "curValue - " << curValue << ", rcvdValue - " << rcvdValue << ", newValue - " << newValue
-    //     <<  ", retValue - " << retValue << "\n";
-
     return retValue;
 }
 
@@ -192,12 +189,8 @@ list<KLCacheEntry*> KLDataMgr::getCacheEntriesToSend(int changeSignificance, int
     int i;
     list<double>::iterator iteratorDouble;
 
-    // cout << "========================================\n";
-
-
     // cache is empty
     if (cacheEntryList.size() == 0) {
-        // cout << "entries: " << returnCacheEntryList.size() << " \n";
         lastFocusIndex = -1;
         return returnCacheEntryList;
     }
@@ -296,7 +289,7 @@ int KLDataMgr::checkCacheEntryPresence(string dName)
     list<KLCacheEntry*>::iterator iteratorCacheEntry = cacheEntryList.begin();
     while (iteratorCacheEntry != cacheEntryList.end()) {
         if ((*iteratorCacheEntry)->getDataName() == dName) {
-            return 1;
+            return TRUE;
         }
         iteratorCacheEntry++;
     }
