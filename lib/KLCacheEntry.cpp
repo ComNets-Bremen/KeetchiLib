@@ -30,7 +30,8 @@
 KLCacheEntry::KLCacheEntry(string dName, char *dPayload, int dPayloadSize, int gValue, int dType, double vuTime, double cTime)
 {
 	dataName = dName;
-	dataPayload = (char *) malloc(dPayloadSize);
+	dataPayload = (char *) malloc(dPayloadSize + 1);
+    memset(dataPayload, '\0', (dPayloadSize + 1));
 	memcpy(dataPayload, dPayload, dPayloadSize);
 	dataPayloadSize = dPayloadSize;
 	goodnessValue = gValue;

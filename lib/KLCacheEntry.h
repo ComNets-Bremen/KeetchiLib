@@ -60,7 +60,8 @@ class KLCacheEntry
 	
 		// setters
 		void setDataName(string s) {dataName = s; }
-		void setDataPayload(char *d, int ds) {dataPayload = (char *)malloc(ds); 
+		void setDataPayload(char *d, int ds) {dataPayload = (char *)malloc(ds + 1);
+                                                        memset(dataPayload, '\0', (ds + 1));
 														memcpy(dataPayload, d, ds);
 														dataPayloadSize = ds; }
 		void setGoodnessValue(int gv) {goodnessValue = gv; }

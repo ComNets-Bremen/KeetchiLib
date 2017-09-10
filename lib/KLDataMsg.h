@@ -68,7 +68,8 @@ class KLDataMsg
 												dataPayload = NULL;
 												dataPayloadSize = 0;
 											  } else {
-												dataPayload = (char *)malloc(ds); 
+												dataPayload = (char *)malloc(ds + 1); 
+                                                memset(dataPayload, '\0', (ds + 1));
 												memcpy(dataPayload, d, ds);
 												dataPayloadSize = ds;
 											  }
