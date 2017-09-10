@@ -380,6 +380,14 @@ list<KLAction*> KLKeetchi::processNewNeighbourList(list<KLNodeInfo*> nodeInfoLis
         sendCacheEntryList.remove(cacheEntry);
         delete cacheEntry;
     }
+    
+    // remove received neighbour list
+    while (nodeInfoList.size() > 0) {
+        list<KLNodeInfo*>::iterator iteratorNodeInfo = nodeInfoList.begin();
+        KLNodeInfo *nodeInfo = *iteratorNodeInfo;
+        nodeInfoList.remove(nodeInfo);
+        delete nodeInfo;
+    }
 
     return returnActionList;
 }
