@@ -56,6 +56,7 @@ class KLDataMsg
 		int getGoodnessValue() {return goodnessValue; }
 		int getMsgType() {return msgType; }
 		int getValidUntilTime() {return validUntilTime; }
+		int getSimDataPayloadSize() {return simDataPayloadSize; }
 	
 		// setters
 		void setMsgDirection(int md) {msgDirection = md; }
@@ -78,8 +79,9 @@ class KLDataMsg
 
 		void setMsgType(int mt) {msgType = mt; }
 		void setValidUntilTime(int vut) {validUntilTime = vut; }
-		
-		
+		void setSimDataPayloadSize(int ds) {simDataPayloadSize = ds; }
+
+
 	private:
 		// check KLTypes to get values for the variables below
 		int msgDirection;
@@ -87,16 +89,18 @@ class KLDataMsg
 		int toWhere;
 		string sourceAddress;
 		string destinationAddress;
-		
+
 		string dataName;
 		char *dataPayload;
 		int dataPayloadSize;
-		
+
 		int goodnessValue;
-		
+
 		int msgType;
 		double validUntilTime;
 
+        // used when KeetchiLib used for simulations
+        int simDataPayloadSize;
 };
 
 

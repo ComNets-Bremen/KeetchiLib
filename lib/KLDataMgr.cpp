@@ -27,7 +27,7 @@
 */
 #include "KLDataMgr.h"
 
-KLDataMgr::KLDataMgr(int cachePolicy, int cacheSize, double coolOffDur, double learningConst)
+KLDataMgr::KLDataMgr(int cachePolicy, int cacheSize, double coolOffDur, double learningConst, int simKeetchi)
 {
     cacheReplacementPolicy = cachePolicy;
     maxCacheSize = cacheSize;
@@ -36,6 +36,9 @@ KLDataMgr::KLDataMgr(int cachePolicy, int cacheSize, double coolOffDur, double l
     currentCacheSize = 0;
     lastFocusIndex = -1;
     coolOffEndTime = 0.0;
+    
+    simulatedKeetchi = simKeetchi;
+    simulatedCurrentCacheSize = 0;
 
     srand(128);
 
@@ -79,14 +82,14 @@ KLCacheEntry* KLDataMgr::getCacheEntry(string dName, double cTime)
                                             foundCacheEntry->getDataPayloadSize(),
                                             foundCacheEntry->getGoodnessValue(),
                                             foundCacheEntry->getDataType(), foundCacheEntry->getValidUntilTime(),
-                                            cTime);
+                                            cTime, foundCacheEntry->getSimDataPayloadSize());
         foundCacheEntry->setLastAccessedTime(cTime);
     }
 
     return copiedCacheEntry;
 }
 
-int KLDataMgr::updateCacheEntry(string dName, char *dPayload, int dPayloadSize, int gValue, int dType, double vuTime, double cTime)
+int KLDataMgr::updateCacheEntry(string dName, char *dPayload, int dPayloadSize, int gValue, int dType, double vuTime, double cTime, int dSimPayloadSize)
 {
     KLCacheEntry *foundCacheEntry = NULL, *updatedCacheEntry = NULL;
 
@@ -106,11 +109,12 @@ int KLDataMgr::updateCacheEntry(string dName, char *dPayload, int dPayloadSize, 
     updatedCacheEntry = new KLCacheEntry(dName, dPayload,
                                         dPayloadSize,
                                         gValue, dType, vuTime,
-                                        cTime);
+                                        cTime, dSimPayloadSize);
 
     // if the cache had a previous entry, remove the existing entry and set old time stamps
     if (found) {
         currentCacheSize -= foundCacheEntry->getDataPayloadSize();
+        simulatedCurrentCacheSize -= foundCacheEntry->getSimDataPayloadSize();
         cacheEntryList.remove(foundCacheEntry);
         updatedCacheEntry->setCreatedTime(foundCacheEntry->getCreatedTime());
         updatedCacheEntry->setLastAccessedTime(foundCacheEntry->getLastAccessedTime());
@@ -136,18 +140,35 @@ int KLDataMgr::updateCacheEntry(string dName, char *dPayload, int dPayloadSize, 
 
     // increment cache size
     currentCacheSize += dPayloadSize;
+    simulatedCurrentCacheSize += dSimPayloadSize;
 
-    // remove entries if cache exceeded limit (maxCacheSize == 0 means unlimited cache)
-    if (maxCacheSize != 0 && currentCacheSize > maxCacheSize) {
-        while (currentCacheSize > maxCacheSize) {
-            iteratorCacheEntry = cacheEntryList.end();
-            iteratorCacheEntry--;
-            KLCacheEntry *removalCacheEntry = *iteratorCacheEntry;
-            cacheEntryList.remove(removalCacheEntry);
-            currentCacheSize -= removalCacheEntry->getDataPayloadSize();
-            delete removalCacheEntry;
+    if (simulatedKeetchi) {
+        // remove entries if cache exceeded limit (maxCacheSize == 0 means unlimited cache)
+        if (maxCacheSize != 0 && simulatedCurrentCacheSize > maxCacheSize) {
+            while (simulatedCurrentCacheSize > maxCacheSize) {
+                iteratorCacheEntry = cacheEntryList.end();
+                iteratorCacheEntry--;
+                KLCacheEntry *removalCacheEntry = *iteratorCacheEntry;
+                cacheEntryList.remove(removalCacheEntry);
+                simulatedCurrentCacheSize -= removalCacheEntry->getSimDataPayloadSize();
+                currentCacheSize -= removalCacheEntry->getDataPayloadSize();
+                delete removalCacheEntry;
+            }
         }
-
+        
+    } else {
+        // remove entries if cache exceeded limit (maxCacheSize == 0 means unlimited cache)
+        if (maxCacheSize != 0 && currentCacheSize > maxCacheSize) {
+            while (currentCacheSize > maxCacheSize) {
+                iteratorCacheEntry = cacheEntryList.end();
+                iteratorCacheEntry--;
+                KLCacheEntry *removalCacheEntry = *iteratorCacheEntry;
+                cacheEntryList.remove(removalCacheEntry);
+                currentCacheSize -= removalCacheEntry->getDataPayloadSize();
+                simulatedCurrentCacheSize -= removalCacheEntry->getSimDataPayloadSize();
+                delete removalCacheEntry;
+            }
+        }
     }
 
     // // print cache -> temp code

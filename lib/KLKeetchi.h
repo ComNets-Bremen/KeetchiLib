@@ -53,7 +53,7 @@ using namespace std;
 class KLKeetchi
 {
     public:
-        KLKeetchi(int cachePolicy, int cacheSize, string ownAddr, double changeSigThreshold, double coolOffDur, double learningConst);
+        KLKeetchi(int cachePolicy, int cacheSize, string ownAddr, double changeSigThreshold, double coolOffDur, double learningConst, int simKeetchi);
         ~KLKeetchi(void);
 
         int registerApplication(string appName, string prefixName, double currentTime);
@@ -77,6 +77,7 @@ class KLKeetchi
                                  // goodness value in cache when computing the new value
                                  // together with the recently arrived goodness value (in
                                  // a data or feedback) - a value between 0.0 - 1.0
+        int simulatedKeetchi; // is KeetchiLib being used for simulations or not - true = simulated
 
         KLDataMgr *dataMgr;
         KLCommMgr *commMgr;

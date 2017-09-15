@@ -42,7 +42,7 @@ using namespace std;
 class KLCacheEntry
 {
 	public:
-		KLCacheEntry(string dName, char *dPayload, int dPayloadSize, int gValue, int mType, double vuTime, double cTime);
+		KLCacheEntry(string dName, char *dPayload, int dPayloadSize, int gValue, int mType, double vuTime, double cTime, int dSimPayloadSize);
 		~KLCacheEntry(void);
 	
 		// getters
@@ -57,6 +57,7 @@ class KLCacheEntry
 		double getUpdatedTime() {return updatedTime; }
 		double getLastAccessedTime() {return lastAccessedTime; }
 		
+		int getSimDataPayloadSize() {return simDataPayloadSize; }
 	
 		// setters
 		void setDataName(string s) {dataName = s; }
@@ -72,6 +73,8 @@ class KLCacheEntry
 		void setUpdatedTime(double ut) {updatedTime = ut; }
 		void setLastAccessedTime(double lat) {lastAccessedTime = lat; }
 		
+		void setSimDataPayloadSize(int ds) {simDataPayloadSize = ds; }
+
 		// utility methods
 		KLCacheEntry *makeCopy(void);
 
@@ -87,6 +90,8 @@ class KLCacheEntry
 		double updatedTime;
 		double lastAccessedTime;
 
+        // used when KeetchiLib used for simulations
+		int simDataPayloadSize;
 	};
 
 #endif

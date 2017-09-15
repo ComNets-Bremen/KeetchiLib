@@ -46,7 +46,7 @@ int main(){
 
     double time = static_cast<double>(std::time(NULL));
 
-    KLKeetchi *keetchi = new KLKeetchi(cachePolicy, cacheSize, ownAddr, changeSigThresh, silenceDur, learningConst);
+    KLKeetchi *keetchi = new KLKeetchi(cachePolicy, cacheSize, ownAddr, changeSigThresh, silenceDur, learningConst, TRUE);
     ret = keetchi->registerApplication("MyApp", "myAddress", time);
     std::cout << "Return value: " << ret << std::endl;
     ret = keetchi->registerApplication("MyApp", "myAddress", time);
