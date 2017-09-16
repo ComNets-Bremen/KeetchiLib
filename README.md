@@ -36,7 +36,7 @@ The KeetchiLib is simply a library that is platform independent and all
 network related operations are also the responsibility of the applications.
 
 The detailed description of the ODD model is presented in the paper
-[A Novel Data Dissemination Model for Organic Data Flows](https://link.springer.com/chapter/10.1007%2F978-3-319-26925-2_18) by A. Foerster et al.
+[A Novel Data Dissemination Model for Organic Data Flows](https://link.springer.com/chapter/10.1007%2F978-3-319-26925-2_18) by A. Förster et al.
 
 
 Prerequisites
@@ -93,20 +93,23 @@ The functionality of the KeetchiLib is availed through the classes `KLKeetchi`
 and `KLAction`. The applications that use the KeetchiLib must instantiate an
 object of `KLKeetchi` giving the following parameters.
 
-1. cachePolicy - Cache management policy to be implemented
+1. `cachePolicy` - Cache management policy to be implemented
 
-2. cacheSize - The size of cache in bytes
+2. `cacheSize` - The size of cache in bytes
 
-3. ownAddr - MAC address of the host that instantiates the KLKeetchi object
+3. `ownAddr` - MAC address of the host that instantiates the KLKeetchi object
 
-4. changeSigThreshold - The threshold ratio to determine whether the neighbourhood changes 
+4. `changeSigThreshold` - The threshold ratio to determine whether the neighbourhood changes 
 are considered as being significant or not (a value between 0.0 and 1.0, inclusive)
 
-5. coolOffDur - The duration to wait when repeated insignificant neighbourhood changes are
+5. `coolOffDur` - The duration to wait when repeated insignificant neighbourhood changes are
 received
 
-6. learningConst - The constant used to weight the Goodness values when updating in cache 
+6. `learningConst` - The constant used to weight the Goodness values when updating in cache 
 (value between 0.0 and 1.0)
+
+7. `simKeetchi` - Indicates whether the KeetchiLib is used for simulations or in a real implementation
+(true = used in simulations) 
 
 Once a `KLKeetchi` object is created, the following general workflow must be followed.
 
@@ -134,5 +137,5 @@ If you have any questions or comments, please write to,
 
   - Asanga Udugama (adu@comnets.uni-bremen.de),
   - Jens Dede (jd@comnets.uni-bremen.de) or
-  - Anna Foerster (anna.foerster@comnets.uni-bremen.de)
+  - Anna Förster (anna.foerster@comnets.uni-bremen.de)
 
