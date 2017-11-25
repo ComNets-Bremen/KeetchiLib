@@ -207,7 +207,6 @@ list<KLCacheEntry*> KLDataMgr::getCacheEntriesToSend(int changeSignificance, int
     list<KLCacheEntry*> returnCacheEntryList;
     KLCacheEntry *selecedCacheEntry, *copiedCacheEntry;
     list<double> weightList;
-    int i;
     list<double>::iterator iteratorDouble;
 
     // cache is empty
@@ -233,7 +232,7 @@ list<KLCacheEntry*> KLDataMgr::getCacheEntriesToSend(int changeSignificance, int
 
         // retrieve cache entry
         list<KLCacheEntry*>::iterator iteratorCacheEntry = cacheEntryList.begin();
-        advance(iteratorCacheEntry, i);
+        advance(iteratorCacheEntry, sendDataIndex);
         selecedCacheEntry = *iteratorCacheEntry;
 
         // make a copy and set return variable
