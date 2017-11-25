@@ -258,7 +258,7 @@ list<KLCacheEntry*> KLDataMgr::getCacheEntriesToSend(int changeSignificance, int
         lastFocusIndex += 1;
 
         // is valid focus index
-        if (lastFocusIndex <= cacheEntryList.size()) {
+        if (lastFocusIndex < cacheEntryList.size()) {
 
             // yes, it is a valid focus index
 
@@ -267,7 +267,7 @@ list<KLCacheEntry*> KLDataMgr::getCacheEntriesToSend(int changeSignificance, int
 
             // retrieve cache entry
             list<KLCacheEntry*>::iterator iteratorCacheEntry = cacheEntryList.begin();
-            advance(iteratorCacheEntry, i);
+            advance(iteratorCacheEntry, sendDataIndex);
             selecedCacheEntry = *iteratorCacheEntry;
 
             // make a copy and set return variable

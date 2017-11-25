@@ -39,7 +39,7 @@ KLKeetchi::KLKeetchi(int cachePolicy, int cacheSize, string ownAddr, double chan
 
     dataMgr = new KLDataMgr(cachePolicy, cacheSize, coolOffDuration, learningConstant, simulatedKeetchi);
     commMgr = new KLCommMgr(neighbourhoodChangeSignificanceThreshold);
-    resourceMgr = new KLResourceMgr();
+    resourceMgr = new KLResourceMgr();    
 }
 
 KLKeetchi::~KLKeetchi(void)
@@ -371,6 +371,11 @@ list<KLAction*> KLKeetchi::processNewNeighbourList(list<KLNodeInfo*> nodeInfoLis
         returnActionList.push_front(action);
 
         iteratorCacheEntry++;
+        
+        // if (ownAddress == "02:00:00:00:00:00") {
+        //     cout << ownAddress << " " << currentTime << (changeSignificance == KLKEETCHI_SIGNIFICANT_CHANGE ? " -Sig- " : " -Non- ") << " cache = " << dataMgr->getCurrentCacheSize() << "\n";
+        //     cout << " - sending " << dataMsg->getDataName() << " with " << dataMsg->getGoodnessValue() << "\n";
+        // }
     }
 
     // update new neighbour list
