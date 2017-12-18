@@ -27,37 +27,40 @@
 */
 #include "KLCacheEntry.h"
 
-KLCacheEntry::KLCacheEntry(string dName, char *dPayload, int dPayloadSize, int gValue, int dType, double vuTime, double cTime, int dSimPayloadSize)
+KLCacheEntry::KLCacheEntry(string dName, char *dPayload, int dPayloadSize, int gValue, int dType,
+                           double vuTime, int hTravelled, double cTime, int dSimPayloadSize)
 {
-	dataName = dName;
-	dataPayload = (char *) malloc(dPayloadSize + 1);
+    dataName = dName;
+    dataPayload = (char *) malloc(dPayloadSize + 1);
     memset(dataPayload, '\0', (dPayloadSize + 1));
-	memcpy(dataPayload, dPayload, dPayloadSize);
-	dataPayloadSize = dPayloadSize;
-	goodnessValue = gValue;
-	dataType = dType;
-	validUntilTime = vuTime;
+    memcpy(dataPayload, dPayload, dPayloadSize);
+    dataPayloadSize = dPayloadSize;
+    goodnessValue = gValue;
+    dataType = dType;
+    validUntilTime = vuTime;
+    hopsTravelled = hTravelled;
 
-	createdTime = cTime;
-	updatedTime = cTime;
-	lastAccessedTime = cTime;
+    createdTime = cTime;
+    updatedTime = cTime;
+    lastAccessedTime = cTime;
 
     simDataPayloadSize = dSimPayloadSize;
 }
 
 KLCacheEntry::~KLCacheEntry(void)
 {
-	free(dataPayload);
+    free(dataPayload);
 }
 
 KLCacheEntry* KLCacheEntry::makeCopy(void)
 {
-	KLCacheEntry* copiedCacheEntry;
+    KLCacheEntry* copiedCacheEntry;
 
-	copiedCacheEntry = new KLCacheEntry(dataName, dataPayload, dataPayloadSize, goodnessValue, dataType, validUntilTime, createdTime, simDataPayloadSize);
-	copiedCacheEntry->setCreatedTime(createdTime);
-	copiedCacheEntry->setUpdatedTime(updatedTime);
-	copiedCacheEntry->setLastAccessedTime(lastAccessedTime);
+    copiedCacheEntry = new KLCacheEntry(dataName, dataPayload, dataPayloadSize, goodnessValue, dataType,
+                                        validUntilTime, hopsTravelled, createdTime, simDataPayloadSize);
+    copiedCacheEntry->setCreatedTime(createdTime);
+    copiedCacheEntry->setUpdatedTime(updatedTime);
+    copiedCacheEntry->setLastAccessedTime(lastAccessedTime);
 
-	return copiedCacheEntry;
+    return copiedCacheEntry;
 }

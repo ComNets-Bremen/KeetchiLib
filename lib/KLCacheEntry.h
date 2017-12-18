@@ -20,7 +20,7 @@
  ******************************************************************************/
 
 /**
-* Holds a single cache entry. A cache entry contains the content of a 
+* Holds a single cache entry. A cache entry contains the content of a
 * single Data message.
 *
 * @author : Asanga Udugama (adu@comnets.uni-bremen.de)
@@ -41,57 +41,61 @@ using namespace std;
 
 class KLCacheEntry
 {
-	public:
-		KLCacheEntry(string dName, char *dPayload, int dPayloadSize, int gValue, int mType, double vuTime, double cTime, int dSimPayloadSize);
-		~KLCacheEntry(void);
-	
-		// getters
-		string getDataName() {return dataName; }
-		char *getDataPayload() {return dataPayload; }
-		int getDataPayloadSize() {return dataPayloadSize; }
-		int getGoodnessValue() {return goodnessValue; }
-		int getDataType() {return dataType; }
-		int getValidUntilTime() {return validUntilTime; }
-		
-		double getCreatedTime() {return createdTime; }
-		double getUpdatedTime() {return updatedTime; }
-		double getLastAccessedTime() {return lastAccessedTime; }
-		
-		int getSimDataPayloadSize() {return simDataPayloadSize; }
-	
-		// setters
-		void setDataName(string s) {dataName = s; }
-		void setDataPayload(char *d, int ds) {dataPayload = (char *)malloc(ds + 1);
+    public:
+        KLCacheEntry(string dName, char *dPayload, int dPayloadSize, int gValue, int mType,
+                     double vuTime, int hTravelled, double cTime, int dSimPayloadSize);
+        ~KLCacheEntry(void);
+
+        // getters
+        string getDataName() {return dataName; }
+        char *getDataPayload() {return dataPayload; }
+        int getDataPayloadSize() {return dataPayloadSize; }
+        int getGoodnessValue() {return goodnessValue; }
+        int getDataType() {return dataType; }
+        double getValidUntilTime() {return validUntilTime; }
+        int getHopsTravelled() {return hopsTravelled; }
+
+        double getCreatedTime() {return createdTime; }
+        double getUpdatedTime() {return updatedTime; }
+        double getLastAccessedTime() {return lastAccessedTime; }
+
+        int getSimDataPayloadSize() {return simDataPayloadSize; }
+
+        // setters
+        void setDataName(string s) {dataName = s; }
+        void setDataPayload(char *d, int ds) {dataPayload = (char *)malloc(ds + 1);
                                                         memset(dataPayload, '\0', (ds + 1));
-														memcpy(dataPayload, d, ds);
-														dataPayloadSize = ds; }
-		void setGoodnessValue(int gv) {goodnessValue = gv; }
-		void setDataType(int dt) {dataType = dt; }
-		void setValidUntilTime(int vut) {validUntilTime = vut; }
-		
-		void setCreatedTime(double ct) {createdTime = ct; }
-		void setUpdatedTime(double ut) {updatedTime = ut; }
-		void setLastAccessedTime(double lat) {lastAccessedTime = lat; }
-		
-		void setSimDataPayloadSize(int ds) {simDataPayloadSize = ds; }
+                                                        memcpy(dataPayload, d, ds);
+                                                        dataPayloadSize = ds; }
+        void setGoodnessValue(int gv) {goodnessValue = gv; }
+        void setDataType(int dt) {dataType = dt; }
+        void setValidUntilTime(double vut) {validUntilTime = vut; }
+        void setHopsTravelled(int ht) {hopsTravelled = ht; }
 
-		// utility methods
-		KLCacheEntry *makeCopy(void);
+        void setCreatedTime(double ct) {createdTime = ct; }
+        void setUpdatedTime(double ut) {updatedTime = ut; }
+        void setLastAccessedTime(double lat) {lastAccessedTime = lat; }
 
-	private:
-		string dataName;
-		char *dataPayload;
-		int dataPayloadSize;
-		int goodnessValue;
-		int dataType;
-		double validUntilTime;
+        void setSimDataPayloadSize(int ds) {simDataPayloadSize = ds; }
 
-		double createdTime;
-		double updatedTime;
-		double lastAccessedTime;
+        // utility methods
+        KLCacheEntry *makeCopy(void);
+
+    private:
+        string dataName;
+        char *dataPayload;
+        int dataPayloadSize;
+        int goodnessValue;
+        int dataType;
+        double validUntilTime;
+        int hopsTravelled;
+
+        double createdTime;
+        double updatedTime;
+        double lastAccessedTime;
 
         // used when KeetchiLib used for simulations
-		int simDataPayloadSize;
-	};
+        int simDataPayloadSize;
+    };
 
 #endif

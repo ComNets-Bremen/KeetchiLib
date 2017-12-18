@@ -40,64 +40,68 @@ using namespace std;
 
 class KLDataMsg
 {
-	public:
-		KLDataMsg(void);
-		~KLDataMsg(void);
+    public:
+        KLDataMsg(void);
+        ~KLDataMsg(void);
 
-		// getters
-		int getMsgDirection() {return msgDirection; }
-		int getFromWhere() {return fromWhere; }
-		int getToWhere() {return toWhere; }
-		string getSourceAddress() {return sourceAddress; }
-		string getDestinationAddress() {return destinationAddress; }
-		string getDataName() {return dataName; }
-		char *getDataPayload() {return dataPayload; }
-		int getDataPayloadSize() {return dataPayloadSize; }
-		int getGoodnessValue() {return goodnessValue; }
-		int getMsgType() {return msgType; }
-		int getValidUntilTime() {return validUntilTime; }
-		int getSimDataPayloadSize() {return simDataPayloadSize; }
-	
-		// setters
-		void setMsgDirection(int md) {msgDirection = md; }
-		void setFromWhere(int fw) {fromWhere = fw; }
-		void setToWhere(int tw) {toWhere = tw; }
-		void setSourceAddress(string s) {sourceAddress = s; }
-		void setDestinationAddress(string s) {destinationAddress = s; }
-		void setDataName(string s) {dataName = s; }
-		void setDataPayload(char *d, int ds) {if (d == NULL || ds == 0) {
-												dataPayload = NULL;
-												dataPayloadSize = 0;
-											  } else {
-												dataPayload = (char *)malloc(ds + 1); 
+        // getters
+        int getMsgDirection() {return msgDirection; }
+        int getFromWhere() {return fromWhere; }
+        int getToWhere() {return toWhere; }
+        string getSourceAddress() {return sourceAddress; }
+        string getDestinationAddress() {return destinationAddress; }
+        string getDataName() {return dataName; }
+        char *getDataPayload() {return dataPayload; }
+        int getDataPayloadSize() {return dataPayloadSize; }
+        int getGoodnessValue() {return goodnessValue; }
+        int getMsgType() {return msgType; }
+        int getValidUntilTime() {return validUntilTime; }
+        int getHopsTravelled() {return hopsTravelled; }
+        int getSimDataPayloadSize() {return simDataPayloadSize; }
+
+        // setters
+        void setMsgDirection(int md) {msgDirection = md; }
+        void setFromWhere(int fw) {fromWhere = fw; }
+        void setToWhere(int tw) {toWhere = tw; }
+        void setSourceAddress(string s) {sourceAddress = s; }
+        void setDestinationAddress(string s) {destinationAddress = s; }
+        void setDataName(string s) {dataName = s; }
+        void setDataPayload(char *d, int ds) {if (d == NULL || ds == 0) {
+                                                dataPayload = NULL;
+                                                dataPayloadSize = 0;
+                                              } else {
+                                                dataPayload = (char *)malloc(ds + 1);
                                                 memset(dataPayload, '\0', (ds + 1));
-												memcpy(dataPayload, d, ds);
-												dataPayloadSize = ds;
-											  }
-											}
-		void setGoodnessValue(int gv) {goodnessValue = gv; }
+                                                memcpy(dataPayload, d, ds);
+                                                dataPayloadSize = ds;
+                                              }
+                                            }
+        void setGoodnessValue(int gv) {goodnessValue = gv; }
 
-		void setMsgType(int mt) {msgType = mt; }
-		void setValidUntilTime(int vut) {validUntilTime = vut; }
-		void setSimDataPayloadSize(int ds) {simDataPayloadSize = ds; }
+        void setMsgType(int mt) {msgType = mt; }
+        void setValidUntilTime(int vut) {validUntilTime = vut; }
+        void setHopsTravelled(int ht) {hopsTravelled = ht; }
+        void setSimDataPayloadSize(int ds) {simDataPayloadSize = ds; }
 
 
-	private:
-		// check KLTypes to get values for the variables below
-		int msgDirection;
-		int fromWhere;
-		int toWhere;
-		string sourceAddress;
-		string destinationAddress;
+    private:
+        // check KLTypes to get values for the variables below
+        int msgDirection;
+        int fromWhere;
+        int toWhere;
+        string sourceAddress;
+        string destinationAddress;
 
-		string dataName;
-		char *dataPayload;
-		int dataPayloadSize;
+        string dataName;
+        char *dataPayload;
+        int dataPayloadSize;
 
-		int goodnessValue;
+        int goodnessValue;
 
-		int msgType;
-		double validUntilTime;
+        int msgType;
+        double validUntilTime;
+
+        int hopsTravelled;
 
         // used when KeetchiLib used for simulations
         int simDataPayloadSize;

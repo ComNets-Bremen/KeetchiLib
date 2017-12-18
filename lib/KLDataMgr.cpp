@@ -27,7 +27,8 @@
 */
 #include "KLDataMgr.h"
 
-KLDataMgr::KLDataMgr(int cachePolicy, int cacheSize, double coolOffDur, double learningConst, int simKeetchi)
+KLDataMgr::KLDataMgr(int cachePolicy, int cacheSize, double coolOffDur, double learningConst,
+                     int simKeetchi, double backoffTimerIncFactor)
 {
     cacheReplacementPolicy = cachePolicy;
     maxCacheSize = cacheSize;
@@ -36,12 +37,15 @@ KLDataMgr::KLDataMgr(int cachePolicy, int cacheSize, double coolOffDur, double l
     currentCacheSize = 0;
     lastFocusIndex = -1;
     coolOffEndTime = 0.0;
-    
+
     simulatedKeetchi = simKeetchi;
     simulatedCurrentCacheSize = 0;
 
-    srand(128);
+    backoffTimerIncrementFactor = backoffTimerIncFactor;
+    currentBackoffTimerDuration = KLDATAMGR_INITIAL_BACKOFF_DURATION;
+    backoffTimerExpirationTime = 0.0;
 
+    srand(128);
 }
 
 KLDataMgr::~KLDataMgr(void)
@@ -82,6 +86,7 @@ KLCacheEntry* KLDataMgr::getCacheEntry(string dName, double cTime)
                                             foundCacheEntry->getDataPayloadSize(),
                                             foundCacheEntry->getGoodnessValue(),
                                             foundCacheEntry->getDataType(), foundCacheEntry->getValidUntilTime(),
+                                            foundCacheEntry->getHopsTravelled(),
                                             cTime, foundCacheEntry->getSimDataPayloadSize());
         foundCacheEntry->setLastAccessedTime(cTime);
     }
@@ -89,7 +94,8 @@ KLCacheEntry* KLDataMgr::getCacheEntry(string dName, double cTime)
     return copiedCacheEntry;
 }
 
-int KLDataMgr::updateCacheEntry(string dName, char *dPayload, int dPayloadSize, int gValue, int dType, double vuTime, double cTime, int dSimPayloadSize)
+int KLDataMgr::updateCacheEntry(string dName, char *dPayload, int dPayloadSize, int gValue, int dType,
+                                double vuTime, int hTravelled, double cTime, int dSimPayloadSize)
 {
     KLCacheEntry *foundCacheEntry = NULL, *updatedCacheEntry = NULL;
 
@@ -108,7 +114,7 @@ int KLDataMgr::updateCacheEntry(string dName, char *dPayload, int dPayloadSize, 
     // create a cache entry with the new values
     updatedCacheEntry = new KLCacheEntry(dName, dPayload,
                                         dPayloadSize,
-                                        gValue, dType, vuTime,
+                                        gValue, dType, vuTime, hTravelled,
                                         cTime, dSimPayloadSize);
 
     // if the cache had a previous entry, remove the existing entry and set old time stamps
@@ -155,7 +161,7 @@ int KLDataMgr::updateCacheEntry(string dName, char *dPayload, int dPayloadSize, 
                 delete removalCacheEntry;
             }
         }
-        
+
     } else {
         // remove entries if cache exceeded limit (maxCacheSize == 0 means unlimited cache)
         if (maxCacheSize != 0 && currentCacheSize > maxCacheSize) {
@@ -202,7 +208,8 @@ int KLDataMgr::recomputeGoodnessValue(int curValue, int rcvdValue, double cTime)
     return retValue;
 }
 
-list<KLCacheEntry*> KLDataMgr::getCacheEntriesToSend(int changeSignificance, int resourceLimit, double cTime)
+list<KLCacheEntry*> KLDataMgr::getCacheEntriesToSend(int changeSignificance, int resourceLimit,
+                                                     double cTime)
 {
     list<KLCacheEntry*> returnCacheEntryList;
     KLCacheEntry *selecedCacheEntry, *copiedCacheEntry;
@@ -223,6 +230,9 @@ list<KLCacheEntry*> KLDataMgr::getCacheEntriesToSend(int changeSignificance, int
             // terminate the cool off period
             coolOffEndTime = cTime;
         }
+
+        currentBackoffTimerDuration = KLDATAMGR_INITIAL_BACKOFF_DURATION;
+        backoffTimerExpirationTime = cTime + currentBackoffTimerDuration;
 
         // set focus index to the begining of cache
         lastFocusIndex = 0;
@@ -253,6 +263,13 @@ list<KLCacheEntry*> KLDataMgr::getCacheEntriesToSend(int changeSignificance, int
             return returnCacheEntryList;
         }
 
+        // is backoff timer active?
+        if (cTime < backoffTimerExpirationTime) {
+
+            // if so, dont send any data
+            return returnCacheEntryList;
+        }
+
         // move the focus index to the next entry
         lastFocusIndex += 1;
 
@@ -273,6 +290,10 @@ list<KLCacheEntry*> KLDataMgr::getCacheEntriesToSend(int changeSignificance, int
             copiedCacheEntry = selecedCacheEntry->makeCopy();
             returnCacheEntryList.push_back(copiedCacheEntry);
 
+            // set backoff timer for next send
+            currentBackoffTimerDuration = currentBackoffTimerDuration * backoffTimerIncrementFactor;
+            backoffTimerExpirationTime = cTime + currentBackoffTimerDuration;
+
 
         } else {
             // no, it is an invalid focus index
@@ -282,6 +303,10 @@ list<KLCacheEntry*> KLDataMgr::getCacheEntriesToSend(int changeSignificance, int
             // change occurs or the cool off period is reached
             lastFocusIndex = -1;
             coolOffEndTime = cTime + coolOffDuration;
+
+            // clear the backoff timer
+            currentBackoffTimerDuration = KLDATAMGR_INITIAL_BACKOFF_DURATION;
+            backoffTimerExpirationTime = 0.0;
 
         }
     }

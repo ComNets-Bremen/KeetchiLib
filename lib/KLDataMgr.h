@@ -44,7 +44,8 @@ using namespace std;
 class KLDataMgr
 {
     public:
-        KLDataMgr(int cachePolicy, int cacheSize, double coolOffDur, double learningConst, int simKeetchi);
+        KLDataMgr(int cachePolicy, int cacheSize, double coolOffDur, double learningConst, int simKeetchi,
+                  double backoffTimerIncFactor);
         ~KLDataMgr(void);
 
         // getters
@@ -55,7 +56,8 @@ class KLDataMgr
 
         // operations
         KLCacheEntry* getCacheEntry(string dName, double cTime);
-        int updateCacheEntry(string dName, char *dPayload, int dPayloadSize, int gValue, int dType, double vuTime, double cTime, int dSimPayloadSize);
+        int updateCacheEntry(string dName, char *dPayload, int dPayloadSize, int gValue, int dType,
+                             double vuTime, int hTravelled, double cTime, int dSimPayloadSize);
         int recomputeGoodnessValue(int curValue, int rcvdValue, double cTime);
         list<KLCacheEntry*> getCacheEntriesToSend(int changeSignificance, int resourceLimit, double cTime);
         int ageCacheEntries(double cTime);
@@ -71,9 +73,13 @@ class KLDataMgr
         int currentCacheSize;
         int lastFocusIndex;
         double coolOffEndTime;
-        
+
         int simulatedKeetchi;
         int simulatedCurrentCacheSize;
+
+        double backoffTimerIncrementFactor;
+        double backoffTimerExpirationTime;
+        double currentBackoffTimerDuration;
 
         int buildDistributionAndReturnRandomIndex(int cacheEntryCount, int currentFocusIndex);
 

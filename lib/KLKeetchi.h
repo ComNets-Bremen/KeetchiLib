@@ -53,7 +53,8 @@ using namespace std;
 class KLKeetchi
 {
     public:
-        KLKeetchi(int cachePolicy, int cacheSize, string ownAddr, double changeSigThreshold, double coolOffDur, double learningConst, int simKeetchi);
+        KLKeetchi(int cachePolicy, int cacheSize, string ownAddr, double changeSigThreshold,
+                  double coolOffDur, double learningConst, int simKeetchi, double backoffTimerInc);
         ~KLKeetchi(void);
 
         int registerApplication(string appName, string prefixName, double currentTime);
@@ -78,6 +79,8 @@ class KLKeetchi
                                  // together with the recently arrived goodness value (in
                                  // a data or feedback) - a value between 0.0 - 1.0
         int simulatedKeetchi; // is KeetchiLib being used for simulations or not - true = simulated
+        double backoffTimerIncrementFactor; // increament factor used to incease the sending duration when
+                                            // there is a continuous insignificant change in neighbourhood
 
         KLDataMgr *dataMgr;
         KLCommMgr *commMgr;

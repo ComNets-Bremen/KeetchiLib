@@ -103,13 +103,18 @@ object of `KLKeetchi` giving the following parameters.
 are considered as being significant or not (a value between 0.0 and 1.0, inclusive)
 
 5. `coolOffDur` - The duration to wait when repeated insignificant neighbourhood changes are
-received
+received and the cache has been sent from top to bottom
 
-6. `learningConst` - The constant used to weight the Goodness values when updating in cache 
+6. `learningConst` - The constant used to weight the Goodness values when updated in cache 
 (value between 0.0 and 1.0)
 
 7. `simKeetchi` - Indicates whether the KeetchiLib is used for simulations or in a real implementation
 (true = used in simulations) 
+
+8. `backoffTimerIncrementFactor` - A factor (double value) used to compute the timer duration to send 
+the next data packet when the neighbourhood has no significant change 
+(`next timer duration = current timer duration x backoffTimerIncrementFactor`)
+
 
 Once a `KLKeetchi` object is created, the following general workflow must be followed.
 
@@ -127,7 +132,7 @@ the network interface, call the `processFeedbackMsg()` method to process.
 to `processNewNeighbourList()` method.
 
 5. Additionally, the application must periodically call `ageData()` method to
-perform the housekeeping activities in the ODD model.
+perform housekeeping activities in the ODD model.
 
 
 Support

@@ -27,7 +27,8 @@
 */
 #include "KLKeetchi.h"
 
-KLKeetchi::KLKeetchi(int cachePolicy, int cacheSize, string ownAddr, double changeSigThreshold, double coolOffDur, double learningConst, int simKeetchi)
+KLKeetchi::KLKeetchi(int cachePolicy, int cacheSize, string ownAddr, double changeSigThreshold,
+                     double coolOffDur, double learningConst, int simKeetchi, double backoffTimerIncFactor)
 {
     maxCacheSize = cacheSize;
     cacheReplacementPolicy = cachePolicy;
@@ -36,10 +37,12 @@ KLKeetchi::KLKeetchi(int cachePolicy, int cacheSize, string ownAddr, double chan
     coolOffDuration = coolOffDur;
     learningConstant = learningConst;
     simulatedKeetchi = simKeetchi;
+    backoffTimerIncrementFactor = backoffTimerIncFactor;
 
-    dataMgr = new KLDataMgr(cachePolicy, cacheSize, coolOffDuration, learningConstant, simulatedKeetchi);
+    dataMgr = new KLDataMgr(cachePolicy, cacheSize, coolOffDuration, learningConstant, simulatedKeetchi,
+                            backoffTimerIncrementFactor);
     commMgr = new KLCommMgr(neighbourhoodChangeSignificanceThreshold);
-    resourceMgr = new KLResourceMgr();    
+    resourceMgr = new KLResourceMgr();
 }
 
 KLKeetchi::~KLKeetchi(void)
@@ -122,6 +125,7 @@ KLAction* KLKeetchi::processDataMsg(int fromWhere, KLDataMsg *dataMsg, double cu
         dataMgr->updateCacheEntry(dataMsg->getDataName(), dataMsg->getDataPayload(),
                                     dataMsg->getDataPayloadSize(), dataMsg->getGoodnessValue(),
                                     dataMsg->getMsgType(), dataMsg->getValidUntilTime(),
+                                    dataMsg->getHopsTravelled(),
                                     currentTime, dataMsg->getSimDataPayloadSize());
 
         // save goodness value for later use
@@ -135,6 +139,7 @@ KLAction* KLKeetchi::processDataMsg(int fromWhere, KLDataMsg *dataMsg, double cu
             && existingCacheEntry->getGoodnessValue() == dataMsg->getGoodnessValue()
             && existingCacheEntry->getDataType() == dataMsg->getMsgType()
             && existingCacheEntry->getValidUntilTime() == dataMsg->getValidUntilTime()
+            && existingCacheEntry->getHopsTravelled() == dataMsg->getHopsTravelled()
             && existingCacheEntry->getSimDataPayloadSize() == dataMsg->getSimDataPayloadSize()) {
 
             // nothing has changed
@@ -154,6 +159,7 @@ KLAction* KLKeetchi::processDataMsg(int fromWhere, KLDataMsg *dataMsg, double cu
             dataMgr->updateCacheEntry(dataMsg->getDataName(), dataMsg->getDataPayload(),
                                         dataMsg->getDataPayloadSize(), newGoodnessValue,
                                         dataMsg->getMsgType(), dataMsg->getValidUntilTime(),
+                                        dataMsg->getHopsTravelled(),
                                         currentTime, dataMsg->getSimDataPayloadSize());
             delete existingCacheEntry;
         }
@@ -204,6 +210,7 @@ KLAction* KLKeetchi::processDataMsg(int fromWhere, KLDataMsg *dataMsg, double cu
         returnDataMsg->setGoodnessValue(newGoodnessValue);
         returnDataMsg->setMsgType(dataMsg->getMsgType());
         returnDataMsg->setValidUntilTime(dataMsg->getValidUntilTime());
+        returnDataMsg->setHopsTravelled(dataMsg->getHopsTravelled());
         returnDataMsg->setSimDataPayloadSize(dataMsg->getSimDataPayloadSize());
 
         returnAction->setActionType(KLACTION_ACTION_TYPE_DATAMSG);
@@ -256,6 +263,7 @@ KLAction* KLKeetchi::processFeedbackMsg(int fromWhere, KLFeedbackMsg *feedbackMs
         dataMgr->updateCacheEntry(feedbackMsg->getDataName(), existingCacheEntry->getDataPayload(),
                                     existingCacheEntry->getDataPayloadSize(), newGoodnessValue,
                                     existingCacheEntry->getDataType(), existingCacheEntry->getValidUntilTime(),
+                                    existingCacheEntry->getHopsTravelled(),
                                     currentTime, existingCacheEntry->getSimDataPayloadSize());
 
         returnAction->setProcessingStatus(KLACTION_MSG_PROCESSING_SUCCESSFUL);
@@ -281,6 +289,7 @@ KLAction* KLKeetchi::processFeedbackMsg(int fromWhere, KLFeedbackMsg *feedbackMs
         dataMgr->updateCacheEntry(feedbackMsg->getDataName(), existingCacheEntry->getDataPayload(),
                                     existingCacheEntry->getDataPayloadSize(), newGoodnessValue,
                                     existingCacheEntry->getDataType(), existingCacheEntry->getValidUntilTime(),
+                                    existingCacheEntry->getHopsTravelled(),
                                     currentTime, existingCacheEntry->getSimDataPayloadSize());
 
         returnAction->setProcessingStatus(KLACTION_MSG_PROCESSING_SUCCESSFUL);
@@ -360,6 +369,7 @@ list<KLAction*> KLKeetchi::processNewNeighbourList(list<KLNodeInfo*> nodeInfoLis
         dataMsg->setGoodnessValue(cacheEntry->getGoodnessValue());
         dataMsg->setMsgType(cacheEntry->getDataType());
         dataMsg->setValidUntilTime(cacheEntry->getValidUntilTime());
+        dataMsg->setHopsTravelled(cacheEntry->getHopsTravelled());
         dataMsg->setSimDataPayloadSize(cacheEntry->getSimDataPayloadSize());
 
         // create the action to return with the data msg
@@ -371,7 +381,7 @@ list<KLAction*> KLKeetchi::processNewNeighbourList(list<KLNodeInfo*> nodeInfoLis
         returnActionList.push_front(action);
 
         iteratorCacheEntry++;
-        
+
         // if (ownAddress == "02:00:00:00:00:00") {
         //     cout << ownAddress << " " << currentTime << (changeSignificance == KLKEETCHI_SIGNIFICANT_CHANGE ? " -Sig- " : " -Non- ") << " cache = " << dataMgr->getCurrentCacheSize() << "\n";
         //     cout << " - sending " << dataMsg->getDataName() << " with " << dataMsg->getGoodnessValue() << "\n";
@@ -380,7 +390,7 @@ list<KLAction*> KLKeetchi::processNewNeighbourList(list<KLNodeInfo*> nodeInfoLis
 
     // update new neighbour list
     commMgr->updateNeighbours(nodeInfoList, currentTime);
-    
+
     // remove temporary cache enntries in sendCacheEntryList
     while (sendCacheEntryList.size() > 0) {
         list<KLCacheEntry*>::iterator iteratorCacheEntry = sendCacheEntryList.begin();
@@ -388,7 +398,7 @@ list<KLAction*> KLKeetchi::processNewNeighbourList(list<KLNodeInfo*> nodeInfoLis
         sendCacheEntryList.remove(cacheEntry);
         delete cacheEntry;
     }
-    
+
     // remove received neighbour list
     while (nodeInfoList.size() > 0) {
         list<KLNodeInfo*>::iterator iteratorNodeInfo = nodeInfoList.begin();
@@ -420,4 +430,3 @@ int KLKeetchi::getStatus(int statusType, void *inputInfo, void *outputInfo)
 
     return 0;
 }
-

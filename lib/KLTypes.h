@@ -127,6 +127,9 @@
 #define KLACTION_MSG_PROCESSING_SUCCESSFUL          0
 #define KLACTION_MSG_PROCESSING_FAILED              -1
 
-
+//
+// KLDataMgr class related types
+//
+#define KLDATAMGR_INITIAL_BACKOFF_DURATION          1.0
 
 #endif
