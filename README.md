@@ -99,7 +99,7 @@ object of `KLKeetchi` giving the following parameters.
 
 3. `ownAddr` - MAC address of the host that instantiates the KLKeetchi object
 
-4. `ownNme` - An additional name of the host that instantiates the KLKeetchi object
+4. `ownName` - An additional name of the host that instantiates the KLKeetchi object
 
 5. `changeSigThreshold` - The threshold ratio to determine whether the neighbourhood changes 
 are considered as being significant or not (a value between 0.0 and 1.0, inclusive)

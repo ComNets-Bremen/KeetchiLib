@@ -114,6 +114,55 @@ int KLDataMgr::updateCacheEntry(string dName, char *dPayload, int dPayloadSize, 
         iteratorCacheEntry++;
     }
 
+    // if entry not found, see if cache must be cleared to add new one (but only if
+    // limited cache - maxCacheSize == 0)
+    if (!found && maxCacheSize != 0) {
+        if (simulatedKeetchi) {
+            // remove entries if cache exceeded limit
+            while ((simulatedCurrentCacheSize + dSimPayloadSize) > maxCacheSize) {
+                iteratorCacheEntry = cacheEntryList.end();
+                iteratorCacheEntry--;
+                KLCacheEntry *removalCacheEntry = *iteratorCacheEntry;
+                cacheEntryList.remove(removalCacheEntry);
+                simulatedCurrentCacheSize -= removalCacheEntry->getSimDataPayloadSize();
+                currentCacheSize -= removalCacheEntry->getDataPayloadSize();
+
+                KL_LOG << ">!<" << cTime << ">!<" << ownName << ">!<" << ownAddress
+                    << ">!<" << "CR" << ">!<"
+                    << removalCacheEntry->getDataName()
+                    << ">!<" << removalCacheEntry->getSimDataPayloadSize() << ">!<"
+                    << removalCacheEntry->getDataPayloadSize() << ">!<"
+                    << simulatedCurrentCacheSize << ">!<" << currentCacheSize
+                    << ">!<" << removalCacheEntry->getGoodnessValue()
+                    << ">!<" << removalCacheEntry->getHopsTravelled() << "\n";
+
+                delete removalCacheEntry;
+            }
+        } else {
+            // remove entries if cache exceeded limit
+            while ((currentCacheSize + dPayloadSize) > maxCacheSize) {
+                iteratorCacheEntry = cacheEntryList.end();
+                iteratorCacheEntry--;
+                KLCacheEntry *removalCacheEntry = *iteratorCacheEntry;
+                cacheEntryList.remove(removalCacheEntry);
+                currentCacheSize -= removalCacheEntry->getDataPayloadSize();
+                simulatedCurrentCacheSize -= removalCacheEntry->getSimDataPayloadSize();
+
+                KL_LOG << ">!<" << cTime << ">!<" << ownName << ">!<" << ownAddress
+                    << ">!<" << "CR" << ">!<"
+                    << removalCacheEntry->getDataName()
+                    << ">!<" << removalCacheEntry->getSimDataPayloadSize() << ">!<"
+                    << removalCacheEntry->getDataPayloadSize() << ">!<"
+                    << ">!<" << removalCacheEntry->getDataPayloadSize() << ">!<"
+                    << simulatedCurrentCacheSize << ">!<" << currentCacheSize
+                    << ">!<" << removalCacheEntry->getGoodnessValue()
+                    << ">!<" << removalCacheEntry->getHopsTravelled() << "\n";
+
+                delete removalCacheEntry;
+            }
+        }
+    }
+
     // create a cache entry with the new values
     updatedCacheEntry = new KLCacheEntry(dName, dPayload,
                                         dPayloadSize,
@@ -129,26 +178,6 @@ int KLDataMgr::updateCacheEntry(string dName, char *dPayload, int dPayloadSize, 
         updatedCacheEntry->setLastAccessedTime(foundCacheEntry->getLastAccessedTime());
 
         delete foundCacheEntry;
-        
-        KL_LOG << ">!<" << cTime << ">!<" << ownName << ">!<" << ownAddress
-            << ">!<" << "CU" << ">!<"
-            << updatedCacheEntry->getDataName()
-            << ">!<" << updatedCacheEntry->getSimDataPayloadSize() << ">!<"
-            << updatedCacheEntry->getDataPayloadSize() << ">!<"
-            << simulatedCurrentCacheSize << ">!<" << currentCacheSize
-            << ">!<" << updatedCacheEntry->getGoodnessValue()
-            << ">!<" << updatedCacheEntry->getHopsTravelled() << "\n";
-
-    } else {
-        KL_LOG << ">!<" << cTime << ">!<" << ownName << ">!<" << ownAddress
-            << ">!<" << "CA" << ">!<"
-            << updatedCacheEntry->getDataName()
-            << ">!<" << updatedCacheEntry->getSimDataPayloadSize() << ">!<"
-            << updatedCacheEntry->getDataPayloadSize() << ">!<"
-            << simulatedCurrentCacheSize << ">!<" << currentCacheSize
-            << ">!<" << updatedCacheEntry->getGoodnessValue()
-            << ">!<" << updatedCacheEntry->getHopsTravelled() << "\n";
-        
     }
 
     // search the cache to find where to insert the entry
@@ -171,55 +200,27 @@ int KLDataMgr::updateCacheEntry(string dName, char *dPayload, int dPayloadSize, 
     currentCacheSize += dPayloadSize;
     simulatedCurrentCacheSize += dSimPayloadSize;
 
-    if (simulatedKeetchi) {
-        // remove entries if cache exceeded limit (maxCacheSize == 0 means unlimited cache)
-        if (maxCacheSize != 0 && simulatedCurrentCacheSize > maxCacheSize) {
-            while (simulatedCurrentCacheSize > maxCacheSize) {
-                iteratorCacheEntry = cacheEntryList.end();
-                iteratorCacheEntry--;
-                KLCacheEntry *removalCacheEntry = *iteratorCacheEntry;
-                cacheEntryList.remove(removalCacheEntry);
-                simulatedCurrentCacheSize -= removalCacheEntry->getSimDataPayloadSize();
-                currentCacheSize -= removalCacheEntry->getDataPayloadSize();
-
-                KL_LOG << ">!<" << cTime << ">!<" << ownName << ">!<" << ownAddress
-                    << ">!<" << "CR" << ">!<"
-                    << removalCacheEntry->getDataName()
-                    << ">!<" << removalCacheEntry->getSimDataPayloadSize() << ">!<"
-                    << removalCacheEntry->getDataPayloadSize() << ">!<"
-                    << simulatedCurrentCacheSize << ">!<" << currentCacheSize
-                    << ">!<" << removalCacheEntry->getGoodnessValue()
-                    << ">!<" << removalCacheEntry->getHopsTravelled() << "\n";
-
-                delete removalCacheEntry;
-
-            }
-        }
-
+    // log based on a cache update or cache add
+    if (found) {
+        KL_LOG << ">!<" << cTime << ">!<" << ownName << ">!<" << ownAddress
+            << ">!<" << "CU" << ">!<"
+            << updatedCacheEntry->getDataName()
+            << ">!<" << updatedCacheEntry->getSimDataPayloadSize() << ">!<"
+            << updatedCacheEntry->getDataPayloadSize() << ">!<"
+            << simulatedCurrentCacheSize << ">!<" << currentCacheSize
+            << ">!<" << updatedCacheEntry->getGoodnessValue()
+            << ">!<" << updatedCacheEntry->getHopsTravelled() << "\n";
+        
     } else {
-        // remove entries if cache exceeded limit (maxCacheSize == 0 means unlimited cache)
-        if (maxCacheSize != 0 && currentCacheSize > maxCacheSize) {
-            while (currentCacheSize > maxCacheSize) {
-                iteratorCacheEntry = cacheEntryList.end();
-                iteratorCacheEntry--;
-                KLCacheEntry *removalCacheEntry = *iteratorCacheEntry;
-                cacheEntryList.remove(removalCacheEntry);
-                currentCacheSize -= removalCacheEntry->getDataPayloadSize();
-                simulatedCurrentCacheSize -= removalCacheEntry->getSimDataPayloadSize();
-
-                KL_LOG << ">!<" << cTime << ">!<" << ownName << ">!<" << ownAddress
-                    << ">!<" << "CR" << ">!<"
-                    << removalCacheEntry->getDataName()
-                    << ">!<" << removalCacheEntry->getSimDataPayloadSize() << ">!<"
-                    << removalCacheEntry->getDataPayloadSize() << ">!<"
-                    << ">!<" << removalCacheEntry->getDataPayloadSize() << ">!<"
-                    << simulatedCurrentCacheSize << ">!<" << currentCacheSize
-                    << ">!<" << removalCacheEntry->getGoodnessValue()
-                    << ">!<" << removalCacheEntry->getHopsTravelled() << "\n";
-
-                delete removalCacheEntry;
-            }
-        }
+        KL_LOG << ">!<" << cTime << ">!<" << ownName << ">!<" << ownAddress
+            << ">!<" << "CA" << ">!<"
+            << updatedCacheEntry->getDataName()
+            << ">!<" << updatedCacheEntry->getSimDataPayloadSize() << ">!<"
+            << updatedCacheEntry->getDataPayloadSize() << ">!<"
+            << simulatedCurrentCacheSize << ">!<" << currentCacheSize
+            << ">!<" << updatedCacheEntry->getGoodnessValue()
+            << ">!<" << updatedCacheEntry->getHopsTravelled() << "\n";
+        
     }
 
     // // print cache -> temp code
