@@ -31,9 +31,12 @@
 #define KLFeedbackMsg_H
 
 #include <string>
-#include "KLTypes.h"
+#include <sstream>
+#include <fstream>
 
 using namespace std;
+
+#include "KLTypes.h"
 
 class KLFeedbackMsg
 {

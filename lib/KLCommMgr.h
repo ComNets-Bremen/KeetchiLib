@@ -33,16 +33,19 @@
 #include <list>
 #include <string>
 #include <iostream>
+#include <sstream>
+#include <fstream>
+
+using namespace std;
 
 #include "KLTypes.h"
 #include "KLNodeInfo.h"
 
-using namespace std;
 
 class KLCommMgr
 {
     public:
-        KLCommMgr(double changeSigThreshold);
+        KLCommMgr(double changeSigThreshold, string ownAddr, string ownNme);
         ~KLCommMgr(void);
 
         // operations
@@ -51,6 +54,8 @@ class KLCommMgr
 
     private:
         double neighbourhoodChangeSignificanceThreshold;
+        string ownAddress;
+        string ownName;
         list<KLNodeInfo*> neighbourNodeInfoList;
 
 };

@@ -35,17 +35,19 @@
 #include <list>
 #include <iostream>
 #include <math.h>
+#include <sstream>
+#include <fstream>
+
+using namespace std;
 
 #include "KLTypes.h"
 #include "KLCacheEntry.h"
-
-using namespace std;
 
 class KLDataMgr
 {
     public:
         KLDataMgr(int cachePolicy, int cacheSize, double coolOffDur, double learningConst, int simKeetchi,
-                  double backoffTimerIncFactor);
+                  double backoffTimerIncFactor, string ownAddr, string ownNme);
         ~KLDataMgr(void);
 
         // getters
@@ -80,6 +82,9 @@ class KLDataMgr
         double backoffTimerIncrementFactor;
         double backoffTimerExpirationTime;
         double currentBackoffTimerDuration;
+        
+        string ownAddress;
+        string ownName;
 
         int buildDistributionAndReturnRandomIndex(int cacheEntryCount, int currentFocusIndex);
 

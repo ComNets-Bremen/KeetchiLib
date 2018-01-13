@@ -27,9 +27,10 @@
 */
 #include "KLResourceMgr.h"
 
-KLResourceMgr::KLResourceMgr(void)
+KLResourceMgr::KLResourceMgr(string ownAddr, string ownNme)
 {
-
+    ownAddress = ownAddr;
+    ownName = ownNme;
 }
 
 KLResourceMgr::~KLResourceMgr(void)

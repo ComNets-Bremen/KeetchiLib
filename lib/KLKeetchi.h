@@ -36,6 +36,10 @@
 #include <string>
 #include <cstring>
 #include <iostream>
+#include <sstream>
+#include <fstream>
+
+using namespace std;
 
 #include "KLTypes.h"
 #include "KLAction.h"
@@ -48,13 +52,12 @@
 #include "KLCommMgr.h"
 #include "KLResourceMgr.h"
 
-using namespace std;
-
 class KLKeetchi
 {
     public:
-        KLKeetchi(int cachePolicy, int cacheSize, string ownAddr, double changeSigThreshold,
-                  double coolOffDur, double learningConst, int simKeetchi, double backoffTimerInc);
+        KLKeetchi(int cachePolicy, int cacheSize, string ownAddr, string ownNme, double changeSigThreshold,
+                  double coolOffDur, double learningConst, int simKeetchi, double backoffTimerInc,
+                  string logName);
         ~KLKeetchi(void);
 
         int registerApplication(string appName, string prefixName, double currentTime);
@@ -69,6 +72,8 @@ class KLKeetchi
         int maxCacheSize; // maximum size in bytes
         int cacheReplacementPolicy; // policy -> LRU, etc
         string ownAddress; // node's own MAC address
+        string ownName; // node's name (another unique idenifier of node
+                        // in addition to ownAddress)
         double neighbourhoodChangeSignificanceThreshold; // 0.0 to 1.0 value indicating change significance
                                                          // e.g., 0.25 means a 25% change is sufficient to consider
                                                          // as a significant change in neighbourhood
@@ -81,6 +86,7 @@ class KLKeetchi
         int simulatedKeetchi; // is KeetchiLib being used for simulations or not - true = simulated
         double backoffTimerIncrementFactor; // increament factor used to incease the sending duration when
                                             // there is a continuous insignificant change in neighbourhood
+        string logFileName; // name of the log file to write to
 
         KLDataMgr *dataMgr;
         KLCommMgr *commMgr;
@@ -89,6 +95,11 @@ class KLKeetchi
 
 };
 
-
+#ifdef LOGGING_ENABLED
+bool logFileOpen = false;
+ofstream logFileStream;
+#else
+stringstream dummy;
+#endif
 
 #endif

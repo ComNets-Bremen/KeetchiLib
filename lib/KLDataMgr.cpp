@@ -28,7 +28,7 @@
 #include "KLDataMgr.h"
 
 KLDataMgr::KLDataMgr(int cachePolicy, int cacheSize, double coolOffDur, double learningConst,
-                     int simKeetchi, double backoffTimerIncFactor)
+                     int simKeetchi, double backoffTimerIncFactor, string ownAddr, string ownNme)
 {
     cacheReplacementPolicy = cachePolicy;
     maxCacheSize = cacheSize;
@@ -44,6 +44,9 @@ KLDataMgr::KLDataMgr(int cachePolicy, int cacheSize, double coolOffDur, double l
     backoffTimerIncrementFactor = backoffTimerIncFactor;
     currentBackoffTimerDuration = KLDATAMGR_INITIAL_BACKOFF_DURATION;
     backoffTimerExpirationTime = 0.0;
+    
+    ownAddress = ownAddr;
+    ownName = ownNme;
 
     srand(128);
 }
@@ -126,6 +129,26 @@ int KLDataMgr::updateCacheEntry(string dName, char *dPayload, int dPayloadSize, 
         updatedCacheEntry->setLastAccessedTime(foundCacheEntry->getLastAccessedTime());
 
         delete foundCacheEntry;
+        
+        KL_LOG << ">!<" << cTime << ">!<" << ownName << ">!<" << ownAddress
+            << ">!<" << "CU" << ">!<"
+            << updatedCacheEntry->getDataName()
+            << ">!<" << updatedCacheEntry->getSimDataPayloadSize() << ">!<"
+            << updatedCacheEntry->getDataPayloadSize() << ">!<"
+            << simulatedCurrentCacheSize << ">!<" << currentCacheSize
+            << ">!<" << updatedCacheEntry->getGoodnessValue()
+            << ">!<" << updatedCacheEntry->getHopsTravelled() << "\n";
+
+    } else {
+        KL_LOG << ">!<" << cTime << ">!<" << ownName << ">!<" << ownAddress
+            << ">!<" << "CA" << ">!<"
+            << updatedCacheEntry->getDataName()
+            << ">!<" << updatedCacheEntry->getSimDataPayloadSize() << ">!<"
+            << updatedCacheEntry->getDataPayloadSize() << ">!<"
+            << simulatedCurrentCacheSize << ">!<" << currentCacheSize
+            << ">!<" << updatedCacheEntry->getGoodnessValue()
+            << ">!<" << updatedCacheEntry->getHopsTravelled() << "\n";
+        
     }
 
     // search the cache to find where to insert the entry
@@ -158,7 +181,18 @@ int KLDataMgr::updateCacheEntry(string dName, char *dPayload, int dPayloadSize, 
                 cacheEntryList.remove(removalCacheEntry);
                 simulatedCurrentCacheSize -= removalCacheEntry->getSimDataPayloadSize();
                 currentCacheSize -= removalCacheEntry->getDataPayloadSize();
+
+                KL_LOG << ">!<" << cTime << ">!<" << ownName << ">!<" << ownAddress
+                    << ">!<" << "CR" << ">!<"
+                    << removalCacheEntry->getDataName()
+                    << ">!<" << removalCacheEntry->getSimDataPayloadSize() << ">!<"
+                    << removalCacheEntry->getDataPayloadSize() << ">!<"
+                    << simulatedCurrentCacheSize << ">!<" << currentCacheSize
+                    << ">!<" << removalCacheEntry->getGoodnessValue()
+                    << ">!<" << removalCacheEntry->getHopsTravelled() << "\n";
+
                 delete removalCacheEntry;
+
             }
         }
 
@@ -172,6 +206,17 @@ int KLDataMgr::updateCacheEntry(string dName, char *dPayload, int dPayloadSize, 
                 cacheEntryList.remove(removalCacheEntry);
                 currentCacheSize -= removalCacheEntry->getDataPayloadSize();
                 simulatedCurrentCacheSize -= removalCacheEntry->getSimDataPayloadSize();
+
+                KL_LOG << ">!<" << cTime << ">!<" << ownName << ">!<" << ownAddress
+                    << ">!<" << "CR" << ">!<"
+                    << removalCacheEntry->getDataName()
+                    << ">!<" << removalCacheEntry->getSimDataPayloadSize() << ">!<"
+                    << removalCacheEntry->getDataPayloadSize() << ">!<"
+                    << ">!<" << removalCacheEntry->getDataPayloadSize() << ">!<"
+                    << simulatedCurrentCacheSize << ">!<" << currentCacheSize
+                    << ">!<" << removalCacheEntry->getGoodnessValue()
+                    << ">!<" << removalCacheEntry->getHopsTravelled() << "\n";
+
                 delete removalCacheEntry;
             }
         }
@@ -373,7 +418,7 @@ int KLDataMgr::buildDistributionAndReturnRandomIndex(int cacheEntryCount, int cu
         advance(iteratorCurrentIndex, i);
 
         // compute current weight
-        *iteratorCurrentIndex = *iteratorPreviousIndex / 2.0;
+        *iteratorCurrentIndex = *iteratorPreviousIndex * KLDATAMGR_DISTRIBUTION_COMPUTATION_WEIGHT;
 
         // accumulate sum
         totalWeights += *iteratorCurrentIndex;
@@ -394,7 +439,7 @@ int KLDataMgr::buildDistributionAndReturnRandomIndex(int cacheEntryCount, int cu
         advance(iteratorCurrentIndex, i);
 
         // compute current weight
-        *iteratorCurrentIndex = *iteratorPreviousIndex / 2.0;
+        *iteratorCurrentIndex = *iteratorPreviousIndex * KLDATAMGR_DISTRIBUTION_COMPUTATION_WEIGHT;
 
         // accumulate sum
         totalWeights += *iteratorCurrentIndex;

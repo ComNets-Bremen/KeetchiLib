@@ -27,9 +27,11 @@
 */
 #include "KLCommMgr.h"
 
-KLCommMgr::KLCommMgr(double changeSigThreshold)
+KLCommMgr::KLCommMgr(double changeSigThreshold, string ownAddr, string ownNme)
 {
     neighbourhoodChangeSignificanceThreshold = changeSigThreshold;
+    ownAddress = ownAddr;
+    ownName = ownNme;
 }
 
 KLCommMgr::~KLCommMgr(void)

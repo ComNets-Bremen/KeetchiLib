@@ -39,6 +39,7 @@ int main(){
     int cachePolicy = 0;
     int cacheSize = 0;
     string ownAddr = "00:11:22:33:44:55";
+    string ownName = "node[55]";
     double changeSigThresh = 0.25;
     double silenceDur = 300.0;
     double learningConst = 0.5;
@@ -48,8 +49,8 @@ int main(){
 
     double time = static_cast<double>(std::time(NULL));
 
-    KLKeetchi *keetchi = new KLKeetchi(cachePolicy, cacheSize, ownAddr, changeSigThresh, silenceDur,
-                                       learningConst, simKeetchi, backoffTimerIncFactor);
+    KLKeetchi *keetchi = new KLKeetchi(cachePolicy, cacheSize, ownAddr, ownName, changeSigThresh, silenceDur,
+                                       learningConst, simKeetchi, backoffTimerIncFactor, ".");
     ret = keetchi->registerApplication("MyApp", "myAddress", time);
     std::cout << "Return value: " << ret << std::endl;
     ret = keetchi->registerApplication("MyApp", "myAddress", time);

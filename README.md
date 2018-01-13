@@ -103,7 +103,8 @@ object of `KLKeetchi` giving the following parameters.
 are considered as being significant or not (a value between 0.0 and 1.0, inclusive)
 
 5. `coolOffDur` - The duration to wait when repeated insignificant neighbourhood changes are
-received and the cache has been sent from top to bottom
+received and the cache has been sent from top to bottom (using a high value such as 2 x sim-time,
+can stop sending cached data until a significant change occurs)
 
 6. `learningConst` - The constant used to weight the Goodness values when updated in cache 
 (value between 0.0 and 1.0)

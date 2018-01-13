@@ -32,21 +32,25 @@
 
 #include <list>
 #include <string>
-
-#include "KLTypes.h"
+#include <sstream>
+#include <fstream>
 
 using namespace std;
+
+#include "KLTypes.h"
 
 class KLResourceMgr
 {
 	public:
-		KLResourceMgr(void);
+		KLResourceMgr(string ownAddr, string ownNme);
 		~KLResourceMgr(void);
 
 		// operations
 		int determineResourceLimitationStatus(double cTime);
 
 	private:
+        string ownAddress;
+        string ownName;
 		int batteryLevel;
 
 };

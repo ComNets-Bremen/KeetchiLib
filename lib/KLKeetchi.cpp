@@ -27,22 +27,33 @@
 */
 #include "KLKeetchi.h"
 
-KLKeetchi::KLKeetchi(int cachePolicy, int cacheSize, string ownAddr, double changeSigThreshold,
-                     double coolOffDur, double learningConst, int simKeetchi, double backoffTimerIncFactor)
+KLKeetchi::KLKeetchi(int cachePolicy, int cacheSize, string ownAddr, string ownNme, double changeSigThreshold,
+                     double coolOffDur, double learningConst, int simKeetchi, double backoffTimerIncFactor,
+                     string logName)
 {
     maxCacheSize = cacheSize;
     cacheReplacementPolicy = cachePolicy;
     ownAddress = ownAddr;
+    ownName = ownNme;
     neighbourhoodChangeSignificanceThreshold = changeSigThreshold; // between 0.0 and 1.0
     coolOffDuration = coolOffDur;
     learningConstant = learningConst;
     simulatedKeetchi = simKeetchi;
     backoffTimerIncrementFactor = backoffTimerIncFactor;
+    logFileName = logName;
 
     dataMgr = new KLDataMgr(cachePolicy, cacheSize, coolOffDuration, learningConstant, simulatedKeetchi,
-                            backoffTimerIncrementFactor);
-    commMgr = new KLCommMgr(neighbourhoodChangeSignificanceThreshold);
-    resourceMgr = new KLResourceMgr();
+                            backoffTimerIncrementFactor, ownAddress, ownName);
+    commMgr = new KLCommMgr(neighbourhoodChangeSignificanceThreshold, ownAddress, ownName);
+    resourceMgr = new KLResourceMgr(ownAddress, ownName);
+    
+#ifdef LOGGING_ENABLED
+    // open log file if not yet open
+    if (!logFileOpen) {
+        logFileStream.open(logFileName, ofstream::out | ofstream::app);
+        logFileOpen = true;
+    }
+#endif
 }
 
 KLKeetchi::~KLKeetchi(void)

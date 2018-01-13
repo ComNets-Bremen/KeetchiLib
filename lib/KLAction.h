@@ -30,13 +30,15 @@
 #define KLAction_H
 
 #include <list>
-// using std::list;
+#include <sstream>
+#include <fstream>
+
+using namespace std;
 
 #include "KLTypes.h"
 #include "KLFeedbackMsg.h"
 #include "KLDataMsg.h"
 
-using namespace std;
 	
 class KLAction
 {

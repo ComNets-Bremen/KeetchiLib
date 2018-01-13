@@ -131,5 +131,17 @@
 // KLDataMgr class related types
 //
 #define KLDATAMGR_INITIAL_BACKOFF_DURATION          1.0
+#define KLDATAMGR_DISTRIBUTION_COMPUTATION_WEIGHT   0.8
+
+
+// log file defines
+#define LOGGING_ENABLED
+#ifdef LOGGING_ENABLED
+extern ofstream logFileStream;
+#define KL_LOG                                      logFileStream << "INFO KeetchiLib"
+#else
+extern stringstream dummy;
+#define KL_LOG                                      dummy
+#endif
 
 #endif
