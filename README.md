@@ -99,23 +99,26 @@ object of `KLKeetchi` giving the following parameters.
 
 3. `ownAddr` - MAC address of the host that instantiates the KLKeetchi object
 
-4. `changeSigThreshold` - The threshold ratio to determine whether the neighbourhood changes 
+4. `ownNme` - An additional name of the host that instantiates the KLKeetchi object
+
+5. `changeSigThreshold` - The threshold ratio to determine whether the neighbourhood changes 
 are considered as being significant or not (a value between 0.0 and 1.0, inclusive)
 
-5. `coolOffDur` - The duration to wait when repeated insignificant neighbourhood changes are
+6. `coolOffDur` - The duration to wait when repeated insignificant neighbourhood changes are
 received and the cache has been sent from top to bottom (using a high value such as 2 x sim-time,
 can stop sending cached data until a significant change occurs)
 
-6. `learningConst` - The constant used to weight the Goodness values when updated in cache 
+7. `learningConst` - The constant used to weight the Goodness values when updated in cache 
 (value between 0.0 and 1.0)
 
-7. `simKeetchi` - Indicates whether the KeetchiLib is used for simulations or in a real implementation
+8. `simKeetchi` - Indicates whether the KeetchiLib is used for simulations or in a real implementation
 (true = used in simulations) 
 
-8. `backoffTimerIncrementFactor` - A factor (double value) used to compute the timer duration to send 
+9. `backoffTimerIncrementFactor` - A factor (double value) used to compute the timer duration to send 
 the next data packet when the neighbourhood has no significant change 
 (`next timer duration = current timer duration x backoffTimerIncrementFactor`)
 
+10. `logFileName` - The name of the file to log activities of the KeetchiLib.
 
 Once a `KLKeetchi` object is created, the following general workflow must be followed.
 
