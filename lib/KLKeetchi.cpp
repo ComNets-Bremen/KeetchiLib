@@ -50,7 +50,7 @@ KLKeetchi::KLKeetchi(int cachePolicy, int cacheSize, string ownAddr, string ownN
 #ifdef LOGGING_ENABLED
     // open log file if not yet open
     if (!logFileOpen) {
-        logFileStream.open(logFileName, ofstream::out | ofstream::app);
+        logFileStream.open(logFileName.c_str(), ofstream::out | ofstream::app);
         logFileOpen = true;
     }
 #endif
