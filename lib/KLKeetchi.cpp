@@ -61,6 +61,9 @@ KLKeetchi::~KLKeetchi(void)
     delete dataMgr;
     delete commMgr;
     delete resourceMgr;
+    logFileName = "";
+    logFileStream.close();
+    logFileOpen = false;
 }
 
 // register app with the prefix
