@@ -2,7 +2,7 @@
 # OMNeT++/OMNEST Makefile for $(LIB_PREFIX)KeetchiLib
 #
 # This file was generated with the command:
-#  opp_makemake --make-so -f --deep -O out -I. -I/Users/adu/Development/omnet/ops-test/lib
+#  opp_makemake --make-so -f --deep -O out -I. -I/Users/adu/git/lib -Xsrc
 #
 
 # Name of target to be created (-o option)
@@ -10,7 +10,7 @@ TARGET = $(LIB_PREFIX)KeetchiLib$(D)$(SHARED_LIB_SUFFIX)
 TARGET_DIR = .
 
 # C++ include paths (with -I)
-INCLUDE_PATH = -I. -I/Users/adu/Development/omnet/ops-test/lib
+INCLUDE_PATH = -I. -I/Users/adu/git/lib
 
 # Additional object and library files to link with
 EXTRA_OBJS =
