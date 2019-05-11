@@ -61,6 +61,12 @@ class KLDataMsg
         int getHopsTravelled() {return hopsTravelled; }
         int getSimDataPayloadSize() {return simDataPayloadSize; }
 
+        int getMsgUniqueID() {return msgUniqueID; }
+        double getInitialInjectionTime() {return initialInjectionTime; }
+        bool getDestinationOriented() {return destinationOriented; }
+        string getInitialOriginatorAddress() {return initialOriginatorAddress; }
+        string getFinalDestinationAddress() {return finalDestinationAddress; }
+
         // setters
         void setMsgDirection(int md) {msgDirection = md; }
         void setFromWhere(int fw) {fromWhere = fw; }
@@ -85,6 +91,11 @@ class KLDataMsg
         void setHopsTravelled(int ht) {hopsTravelled = ht; }
         void setSimDataPayloadSize(int ds) {simDataPayloadSize = ds; }
 
+        void setMsgUniqueID(int mi) {msgUniqueID = mi; }
+        void setInitialInjectionTime(double it) {initialInjectionTime = it; }
+        void setDestinationOriented(bool dso) {destinationOriented = dso; }
+        void setInitialOriginatorAddress(string ia) {initialOriginatorAddress = ia; }
+        void setFinalDestinationAddress(string fd) {finalDestinationAddress = fd; }
 
     private:
         // check KLTypes to get values for the variables below
@@ -104,6 +115,12 @@ class KLDataMsg
         double validUntilTime;
 
         int hopsTravelled;
+
+        int msgUniqueID;
+        double initialInjectionTime;
+        bool destinationOriented;
+        string initialOriginatorAddress;
+        string finalDestinationAddress;
 
         // used when KeetchiLib used for simulations
         int simDataPayloadSize;

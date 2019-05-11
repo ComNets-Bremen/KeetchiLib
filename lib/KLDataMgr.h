@@ -55,15 +55,20 @@ class KLDataMgr
                                        return simulatedCurrentCacheSize;
                                    } else {
                                        return currentCacheSize; }}
+        long getTotalCacheBytesRemoved() {return totalCacheBytesRemoved;}
+        long getTotalCacheBytesAdded() {return totalCacheBytesAdded;}
+        long getTotalCacheBytesUpdated() {return totalCacheBytesUpdated;}
 
         // operations
         KLCacheEntry* getCacheEntry(string dName, double cTime);
         int updateCacheEntry(string dName, char *dPayload, int dPayloadSize, int gValue, int dType,
-                             double vuTime, int hTravelled, double cTime, int dSimPayloadSize);
+                             double vuTime, int hTravelled, double cTime, int dSimPayloadSize,
+                             int muID, double iiTime, bool dOriented, string ioAddress, string fdAddress);
         int recomputeGoodnessValue(int curValue, int rcvdValue, double cTime);
         list<KLCacheEntry*> getCacheEntriesToSend(int changeSignificance, int resourceLimit, double cTime);
         int ageCacheEntries(double cTime);
         int checkCacheEntryPresence(string dName);
+
 
     private:
         list<KLCacheEntry*> cacheEntryList;
@@ -88,6 +93,9 @@ class KLDataMgr
 
         int buildDistributionAndReturnRandomIndex(int cacheEntryCount, int currentFocusIndex);
 
+        long totalCacheBytesRemoved;
+        long totalCacheBytesAdded;
+        long totalCacheBytesUpdated;
     };
 
 #endif

@@ -45,7 +45,8 @@ class KLCacheEntry
 {
     public:
         KLCacheEntry(string dName, char *dPayload, int dPayloadSize, int gValue, int mType,
-                     double vuTime, int hTravelled, double cTime, int dSimPayloadSize);
+                     double vuTime, int hTravelled, double cTime, int dSimPayloadSize,
+                     int muID, double iiTime, bool dOriented, string ioAddress, string fdAddress);
         ~KLCacheEntry(void);
 
         // getters
@@ -56,6 +57,12 @@ class KLCacheEntry
         int getDataType() {return dataType; }
         double getValidUntilTime() {return validUntilTime; }
         int getHopsTravelled() {return hopsTravelled; }
+
+        int getMsgUniqueID() {return msgUniqueID; }
+        double getInitialInjectionTime() {return initialInjectionTime; }
+        bool getDestinationOriented() {return destinationOriented; }
+        string getInitialOriginatorAddress() {return initialOriginatorAddress; }
+        string getFinalDestinationAddress() {return finalDestinationAddress; }
 
         double getCreatedTime() {return createdTime; }
         double getUpdatedTime() {return updatedTime; }
@@ -74,6 +81,12 @@ class KLCacheEntry
         void setValidUntilTime(double vut) {validUntilTime = vut; }
         void setHopsTravelled(int ht) {hopsTravelled = ht; }
 
+        void setMsgUniqueID(int mi) {msgUniqueID = mi; }
+        void setInitialInjectionTime(double it) {initialInjectionTime = it; }
+        void setDestinationOriented(bool dso) {destinationOriented = dso; }
+        void setInitialOriginatorAddress(string ioa) {initialOriginatorAddress = ioa; }
+        void setFinalDestinationAddress(string fda) {finalDestinationAddress = fda; }
+
         void setCreatedTime(double ct) {createdTime = ct; }
         void setUpdatedTime(double ut) {updatedTime = ut; }
         void setLastAccessedTime(double lat) {lastAccessedTime = lat; }
@@ -91,6 +104,12 @@ class KLCacheEntry
         int dataType;
         double validUntilTime;
         int hopsTravelled;
+
+        int msgUniqueID;
+        double initialInjectionTime;
+        bool destinationOriented;
+        string initialOriginatorAddress;
+        string finalDestinationAddress;
 
         double createdTime;
         double updatedTime;

@@ -28,7 +28,8 @@
 #include "KLCacheEntry.h"
 
 KLCacheEntry::KLCacheEntry(string dName, char *dPayload, int dPayloadSize, int gValue, int dType,
-                           double vuTime, int hTravelled, double cTime, int dSimPayloadSize)
+                           double vuTime, int hTravelled, double cTime, int dSimPayloadSize,
+                           int muID, double iiTime, bool dOriented, string ioAddress, string fdAddress)
 {
     dataName = dName;
     dataPayload = (char *) malloc(dPayloadSize + 1);
@@ -39,6 +40,12 @@ KLCacheEntry::KLCacheEntry(string dName, char *dPayload, int dPayloadSize, int g
     dataType = dType;
     validUntilTime = vuTime;
     hopsTravelled = hTravelled;
+
+    msgUniqueID = muID;
+    initialInjectionTime = iiTime;
+    destinationOriented = dOriented;
+    initialOriginatorAddress = ioAddress;
+    finalDestinationAddress = fdAddress;
 
     createdTime = cTime;
     updatedTime = cTime;
@@ -57,7 +64,8 @@ KLCacheEntry* KLCacheEntry::makeCopy(void)
     KLCacheEntry* copiedCacheEntry;
 
     copiedCacheEntry = new KLCacheEntry(dataName, dataPayload, dataPayloadSize, goodnessValue, dataType,
-                                        validUntilTime, hopsTravelled, createdTime, simDataPayloadSize);
+                                        validUntilTime, hopsTravelled, createdTime, simDataPayloadSize,
+                                        msgUniqueID, initialInjectionTime, destinationOriented, initialOriginatorAddress, finalDestinationAddress);
     copiedCacheEntry->setCreatedTime(createdTime);
     copiedCacheEntry->setUpdatedTime(updatedTime);
     copiedCacheEntry->setLastAccessedTime(lastAccessedTime);

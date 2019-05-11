@@ -61,6 +61,14 @@
 // Status types
 #define KLKEETCHI_DATA_ITEM_PRESENCE                1   // input: data name as a string
                                                         // output: int 1 = yes, 0 = no
+#define KLKEETCHI_CACHE_BYTES_REMOVED               2   // input: none
+                                                        // output: long
+#define KLKEETCHI_CACHE_BYTES_ADDED                 3   // input: none
+                                                        // output: long
+#define KLKEETCHI_CACHE_BYTES_UPDATED               4   // input: none
+                                                        // output: long
+#define KLKEETCHI_CURRENT_CACHE_SIZE                5   // input: none
+                                                        // output: int
 
 //
 // KLDataMsg class related types
@@ -135,7 +143,7 @@
 
 
 // log file defines
-#define LOGGING_ENABLED
+//#define LOGGING_ENABLED
 #ifdef LOGGING_ENABLED
 extern ofstream logFileStream;
 #define KL_LOG                                      logFileStream << "INFO KeetchiLib"

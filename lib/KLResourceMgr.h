@@ -51,7 +51,7 @@ class KLResourceMgr
 	private:
         string ownAddress;
         string ownName;
-		int batteryLevel;
+		//int batteryLevel;
 
 };
 

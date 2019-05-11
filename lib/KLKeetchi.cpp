@@ -54,6 +54,7 @@ KLKeetchi::KLKeetchi(int cachePolicy, int cacheSize, string ownAddr, string ownN
         logFileOpen = true;
     }
 #endif
+
 }
 
 KLKeetchi::~KLKeetchi(void)
@@ -62,8 +63,10 @@ KLKeetchi::~KLKeetchi(void)
     delete commMgr;
     delete resourceMgr;
     logFileName = "";
+#ifdef LOGGING_ENABLED
     logFileStream.close();
     logFileOpen = false;
+#endif
 }
 
 // register app with the prefix
@@ -140,7 +143,10 @@ KLAction* KLKeetchi::processDataMsg(int fromWhere, KLDataMsg *dataMsg, double cu
                                     dataMsg->getDataPayloadSize(), dataMsg->getGoodnessValue(),
                                     dataMsg->getMsgType(), dataMsg->getValidUntilTime(),
                                     dataMsg->getHopsTravelled(),
-                                    currentTime, dataMsg->getSimDataPayloadSize());
+                                    currentTime, dataMsg->getSimDataPayloadSize(),
+                                    dataMsg->getMsgUniqueID(), dataMsg->getInitialInjectionTime(),
+                                    dataMsg->getDestinationOriented(), dataMsg->getInitialOriginatorAddress(),
+                                    dataMsg->getFinalDestinationAddress());
 
         // save goodness value for later use
         newGoodnessValue = dataMsg->getGoodnessValue();
@@ -174,7 +180,10 @@ KLAction* KLKeetchi::processDataMsg(int fromWhere, KLDataMsg *dataMsg, double cu
                                         dataMsg->getDataPayloadSize(), newGoodnessValue,
                                         dataMsg->getMsgType(), dataMsg->getValidUntilTime(),
                                         dataMsg->getHopsTravelled(),
-                                        currentTime, dataMsg->getSimDataPayloadSize());
+                                        currentTime, dataMsg->getSimDataPayloadSize(),
+                                        dataMsg->getMsgUniqueID(), dataMsg->getInitialInjectionTime(),
+                                        dataMsg->getDestinationOriented(), dataMsg->getInitialOriginatorAddress(),
+                                        dataMsg->getFinalDestinationAddress());
             delete existingCacheEntry;
         }
     }
@@ -200,7 +209,9 @@ KLAction* KLKeetchi::processDataMsg(int fromWhere, KLDataMsg *dataMsg, double cu
     list<KLAppInfo*>::iterator iteratorAppInfo = registeredAppInfoList.begin();
     while (iteratorAppInfo != registeredAppInfoList.end()) {
         appInfo = *iteratorAppInfo;
-        if (dataMsg->getDataName().find(appInfo->getPrefixName()) != string::npos) {
+        if (dataMsg->getDataName().find(appInfo->getPrefixName()) != string::npos
+                && ((dataMsg->getDestinationOriented() && dataMsg->getFinalDestinationAddress().find(ownAddress) != string::npos)
+                        || (!dataMsg->getDestinationOriented()))) {
             found = TRUE;
             break;
         }
@@ -226,6 +237,12 @@ KLAction* KLKeetchi::processDataMsg(int fromWhere, KLDataMsg *dataMsg, double cu
         returnDataMsg->setValidUntilTime(dataMsg->getValidUntilTime());
         returnDataMsg->setHopsTravelled(dataMsg->getHopsTravelled());
         returnDataMsg->setSimDataPayloadSize(dataMsg->getSimDataPayloadSize());
+
+        returnDataMsg->setMsgUniqueID(dataMsg->getMsgUniqueID());
+        returnDataMsg->setInitialInjectionTime(dataMsg->getInitialInjectionTime());
+        returnDataMsg->setDestinationOriented(dataMsg->getDestinationOriented());
+        returnDataMsg->setInitialOriginatorAddress(dataMsg->getInitialOriginatorAddress());
+        returnDataMsg->setFinalDestinationAddress(dataMsg->getFinalDestinationAddress());
 
         returnAction->setActionType(KLACTION_ACTION_TYPE_DATAMSG);
         returnAction->setDataMsg(returnDataMsg);
@@ -278,7 +295,10 @@ KLAction* KLKeetchi::processFeedbackMsg(int fromWhere, KLFeedbackMsg *feedbackMs
                                     existingCacheEntry->getDataPayloadSize(), newGoodnessValue,
                                     existingCacheEntry->getDataType(), existingCacheEntry->getValidUntilTime(),
                                     existingCacheEntry->getHopsTravelled(),
-                                    currentTime, existingCacheEntry->getSimDataPayloadSize());
+                                    currentTime, existingCacheEntry->getSimDataPayloadSize(),
+                                    existingCacheEntry->getMsgUniqueID(), existingCacheEntry->getInitialInjectionTime(),
+                                    existingCacheEntry->getDestinationOriented(), existingCacheEntry->getInitialOriginatorAddress(),
+                                    existingCacheEntry->getFinalDestinationAddress());
 
         returnAction->setProcessingStatus(KLACTION_MSG_PROCESSING_SUCCESSFUL);
         returnAction->setActionType(KLACTION_ACTION_TYPE_EMPTY);
@@ -304,7 +324,10 @@ KLAction* KLKeetchi::processFeedbackMsg(int fromWhere, KLFeedbackMsg *feedbackMs
                                     existingCacheEntry->getDataPayloadSize(), newGoodnessValue,
                                     existingCacheEntry->getDataType(), existingCacheEntry->getValidUntilTime(),
                                     existingCacheEntry->getHopsTravelled(),
-                                    currentTime, existingCacheEntry->getSimDataPayloadSize());
+                                    currentTime, existingCacheEntry->getSimDataPayloadSize(),
+                                    existingCacheEntry->getMsgUniqueID(), existingCacheEntry->getInitialInjectionTime(),
+                                    existingCacheEntry->getDestinationOriented(), existingCacheEntry->getInitialOriginatorAddress(),
+                                    existingCacheEntry->getFinalDestinationAddress());
 
         returnAction->setProcessingStatus(KLACTION_MSG_PROCESSING_SUCCESSFUL);
         returnAction->setActionType(KLACTION_ACTION_TYPE_EMPTY);
@@ -386,6 +409,12 @@ list<KLAction*> KLKeetchi::processNewNeighbourList(list<KLNodeInfo*> nodeInfoLis
         dataMsg->setHopsTravelled(cacheEntry->getHopsTravelled());
         dataMsg->setSimDataPayloadSize(cacheEntry->getSimDataPayloadSize());
 
+        dataMsg->setMsgUniqueID(cacheEntry->getMsgUniqueID());
+        dataMsg->setInitialInjectionTime(cacheEntry->getInitialInjectionTime());
+        dataMsg->setDestinationOriented(cacheEntry->getDestinationOriented());
+        dataMsg->setInitialOriginatorAddress(cacheEntry->getInitialOriginatorAddress());
+        dataMsg->setFinalDestinationAddress(cacheEntry->getFinalDestinationAddress());
+
         // create the action to return with the data msg
         KLAction *action = new KLAction();
         action->setActionType(KLACTION_ACTION_TYPE_DATAMSG);
@@ -438,6 +467,22 @@ int KLKeetchi::getStatus(int statusType, void *inputInfo, void *outputInfo)
         string dName = *((string *) inputInfo);
         int rtn = dataMgr->checkCacheEntryPresence(dName);
         *((int *) outputInfo) = rtn;
+
+        return 1;
+    } else if(statusType == KLKEETCHI_CACHE_BYTES_REMOVED) {
+        *((long *) outputInfo) = dataMgr->getTotalCacheBytesRemoved();
+
+        return 1;
+    } else if(statusType == KLKEETCHI_CACHE_BYTES_ADDED) {
+        *((long *) outputInfo) = dataMgr->getTotalCacheBytesAdded();
+
+        return 1;
+    } else if(statusType == KLKEETCHI_CACHE_BYTES_UPDATED) {
+        *((long *) outputInfo) = dataMgr->getTotalCacheBytesUpdated();
+
+        return 1;
+    } else if(statusType == KLKEETCHI_CURRENT_CACHE_SIZE) {
+        *((int *) outputInfo) = dataMgr->getCurrentCacheSize();
 
         return 1;
     }

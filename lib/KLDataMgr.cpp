@@ -48,6 +48,10 @@ KLDataMgr::KLDataMgr(int cachePolicy, int cacheSize, double coolOffDur, double l
     ownAddress = ownAddr;
     ownName = ownNme;
 
+    totalCacheBytesRemoved = 0;
+    totalCacheBytesAdded = 0;
+    totalCacheBytesUpdated = 0;
+
     srand(128);
 }
 
@@ -90,7 +94,10 @@ KLCacheEntry* KLDataMgr::getCacheEntry(string dName, double cTime)
                                             foundCacheEntry->getGoodnessValue(),
                                             foundCacheEntry->getDataType(), foundCacheEntry->getValidUntilTime(),
                                             foundCacheEntry->getHopsTravelled(),
-                                            cTime, foundCacheEntry->getSimDataPayloadSize());
+                                            cTime, foundCacheEntry->getSimDataPayloadSize(),
+                                            foundCacheEntry->getMsgUniqueID(), foundCacheEntry->getInitialInjectionTime(),
+                                            foundCacheEntry->getDestinationOriented(), foundCacheEntry->getInitialOriginatorAddress(),
+                                            foundCacheEntry->getFinalDestinationAddress());
         foundCacheEntry->setLastAccessedTime(cTime);
     }
 
@@ -98,7 +105,8 @@ KLCacheEntry* KLDataMgr::getCacheEntry(string dName, double cTime)
 }
 
 int KLDataMgr::updateCacheEntry(string dName, char *dPayload, int dPayloadSize, int gValue, int dType,
-                                double vuTime, int hTravelled, double cTime, int dSimPayloadSize)
+                                double vuTime, int hTravelled, double cTime, int dSimPayloadSize,
+                                int muID, double iiTime, bool dOriented, string ioAddress, string fdAddress)
 {
     KLCacheEntry *foundCacheEntry = NULL, *updatedCacheEntry = NULL;
 
@@ -126,7 +134,9 @@ int KLDataMgr::updateCacheEntry(string dName, char *dPayload, int dPayloadSize, 
                 cacheEntryList.remove(removalCacheEntry);
                 simulatedCurrentCacheSize -= removalCacheEntry->getSimDataPayloadSize();
                 currentCacheSize -= removalCacheEntry->getDataPayloadSize();
+                totalCacheBytesRemoved += removalCacheEntry->getSimDataPayloadSize();
 
+#ifdef LOGGING_ENABLED
                 KL_LOG << ">!<" << cTime << ">!<" << ownName << ">!<" << ownAddress
                     << ">!<" << "CR" << ">!<"
                     << removalCacheEntry->getDataName()
@@ -135,6 +145,7 @@ int KLDataMgr::updateCacheEntry(string dName, char *dPayload, int dPayloadSize, 
                     << simulatedCurrentCacheSize << ">!<" << currentCacheSize
                     << ">!<" << removalCacheEntry->getGoodnessValue()
                     << ">!<" << removalCacheEntry->getHopsTravelled() << "\n";
+#endif
 
                 delete removalCacheEntry;
             }
@@ -147,7 +158,9 @@ int KLDataMgr::updateCacheEntry(string dName, char *dPayload, int dPayloadSize, 
                 cacheEntryList.remove(removalCacheEntry);
                 currentCacheSize -= removalCacheEntry->getDataPayloadSize();
                 simulatedCurrentCacheSize -= removalCacheEntry->getSimDataPayloadSize();
+                totalCacheBytesRemoved += removalCacheEntry->getSimDataPayloadSize();
 
+#ifdef LOGGING_ENABLED
                 KL_LOG << ">!<" << cTime << ">!<" << ownName << ">!<" << ownAddress
                     << ">!<" << "CR" << ">!<"
                     << removalCacheEntry->getDataName()
@@ -157,6 +170,7 @@ int KLDataMgr::updateCacheEntry(string dName, char *dPayload, int dPayloadSize, 
                     << simulatedCurrentCacheSize << ">!<" << currentCacheSize
                     << ">!<" << removalCacheEntry->getGoodnessValue()
                     << ">!<" << removalCacheEntry->getHopsTravelled() << "\n";
+#endif
 
                 delete removalCacheEntry;
             }
@@ -167,7 +181,8 @@ int KLDataMgr::updateCacheEntry(string dName, char *dPayload, int dPayloadSize, 
     updatedCacheEntry = new KLCacheEntry(dName, dPayload,
                                         dPayloadSize,
                                         gValue, dType, vuTime, hTravelled,
-                                        cTime, dSimPayloadSize);
+                                        cTime, dSimPayloadSize,
+                                        muID, iiTime, dOriented, ioAddress, fdAddress);
 
     // if the cache had a previous entry, remove the existing entry and set old time stamps
     if (found) {
@@ -202,6 +217,9 @@ int KLDataMgr::updateCacheEntry(string dName, char *dPayload, int dPayloadSize, 
 
     // log based on a cache update or cache add
     if (found) {
+        totalCacheBytesUpdated += updatedCacheEntry->getSimDataPayloadSize();
+
+#ifdef LOGGING_ENABLED
         KL_LOG << ">!<" << cTime << ">!<" << ownName << ">!<" << ownAddress
             << ">!<" << "CU" << ">!<"
             << updatedCacheEntry->getDataName()
@@ -210,8 +228,12 @@ int KLDataMgr::updateCacheEntry(string dName, char *dPayload, int dPayloadSize, 
             << simulatedCurrentCacheSize << ">!<" << currentCacheSize
             << ">!<" << updatedCacheEntry->getGoodnessValue()
             << ">!<" << updatedCacheEntry->getHopsTravelled() << "\n";
-        
+#endif
+
     } else {
+        totalCacheBytesAdded += updatedCacheEntry->getSimDataPayloadSize();
+
+#ifdef LOGGING_ENABLED
         KL_LOG << ">!<" << cTime << ">!<" << ownName << ">!<" << ownAddress
             << ">!<" << "CA" << ">!<"
             << updatedCacheEntry->getDataName()
@@ -220,7 +242,8 @@ int KLDataMgr::updateCacheEntry(string dName, char *dPayload, int dPayloadSize, 
             << simulatedCurrentCacheSize << ">!<" << currentCacheSize
             << ">!<" << updatedCacheEntry->getGoodnessValue()
             << ">!<" << updatedCacheEntry->getHopsTravelled() << "\n";
-        
+#endif
+
     }
 
     // // print cache -> temp code
@@ -376,7 +399,6 @@ int KLDataMgr::ageCacheEntries(double cTime)
 
 int KLDataMgr::checkCacheEntryPresence(string dName)
 {
-    int found = FALSE;
     list<KLCacheEntry*>::iterator iteratorCacheEntry = cacheEntryList.begin();
     while (iteratorCacheEntry != cacheEntryList.end()) {
         if ((*iteratorCacheEntry)->getDataName() == dName) {
@@ -384,7 +406,7 @@ int KLDataMgr::checkCacheEntryPresence(string dName)
         }
         iteratorCacheEntry++;
     }
-    return 0;
+    return FALSE;
 }
 
 int KLDataMgr::buildDistributionAndReturnRandomIndex(int cacheEntryCount, int currentFocusIndex)
