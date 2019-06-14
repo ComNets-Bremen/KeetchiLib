@@ -55,9 +55,15 @@ class KLDataMgr
                                        return simulatedCurrentCacheSize;
                                    } else {
                                        return currentCacheSize; }}
-        long getTotalCacheBytesRemoved() {return totalCacheBytesRemoved;}
-        long getTotalCacheBytesAdded() {return totalCacheBytesAdded;}
-        long getTotalCacheBytesUpdated() {return totalCacheBytesUpdated;}
+        long getTotalCacheBytesRemoved() {long val = totalCacheBytesRemoved;
+                                          totalCacheBytesRemoved = 0;
+                                          return val;}
+        long getTotalCacheBytesAdded() {long val = totalCacheBytesAdded;
+                                        totalCacheBytesAdded = 0;
+                                        return val;}
+        long getTotalCacheBytesUpdated() {long val = totalCacheBytesUpdated;
+                                          totalCacheBytesUpdated = 0;
+                                          return val;}
 
         // operations
         KLCacheEntry* getCacheEntry(string dName, double cTime);
